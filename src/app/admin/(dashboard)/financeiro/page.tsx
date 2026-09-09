@@ -16,6 +16,7 @@ import {
   markPayablePaidAction,
   deletePayableAction,
 } from "@/actions/financial";
+import FinanceTabs from "@/components/admin/finance-tabs";
 
 function formatBRL(value: number): string {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -60,11 +61,10 @@ export default async function FinanceiroPage({
   const openPayables = payables.filter((p) => p.status === "aberta");
   const openReceivables = receivables.filter((r) => r.status === "aberta");
   const periodEntries = entries.filter((e) => e.date >= fromISO && e.date <= toISO);
+  const periodLabel = `${formatDate(fromISO)} a ${formatDate(toISO)}`;
 
-  return (
+  const resumoTab = (
     <div>
-      <h1 className="mb-6 text-2xl font-semibold text-stone-800">Financeiro</h1>
-
       <form className="mb-6 flex flex-wrap items-end gap-3 rounded-xl bg-white p-4 shadow-sm ring-1 ring-stone-200">
         <div>
           <label className="mb-1 block text-xs font-medium text-stone-600">De</label>
@@ -94,7 +94,7 @@ export default async function FinanceiroPage({
         </div>
       </div>
 
-      <div className="mb-8 rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
+      <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
         <h2 className="mb-3 text-sm font-semibold text-stone-700">
           Relatório de lucro ({profit.ordersCount} pedido{profit.ordersCount === 1 ? "" : "s"})
         </h2>
@@ -119,89 +119,61 @@ export default async function FinanceiroPage({
           </div>
         </div>
       </div>
+    </div>
+  );
 
-      <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
-          <h2 className="mb-3 text-sm font-semibold text-stone-700">Categorias financeiras</h2>
-          <form action={createFinancialCategoryAction} className="mb-4 flex flex-wrap items-end gap-2">
-            <input name="name" placeholder="Nome" required className="w-32 rounded-lg border border-stone-300 px-2 py-1.5 text-sm" />
-            <select name="type" className="rounded-lg border border-stone-300 px-2 py-1.5 text-sm">
+  const lancamentosTab = (
+    <div>
+      <p className="mb-4 text-xs text-stone-400">Período: {periodLabel} (ajuste na aba Resumo)</p>
+
+      <div className="mb-6 rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
+        <h2 className="mb-3 text-sm font-semibold text-stone-700">Novo lançamento</h2>
+        <form action={createFinancialEntryAction} className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_1fr_2fr_1fr_1fr_auto] sm:items-end">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-stone-600">Tipo</label>
+            <select name="type" className="w-full rounded-lg border border-stone-300 px-2 py-1.5 text-sm">
               <option value="entrada">Entrada</option>
               <option value="saida">Saída</option>
             </select>
-            <button type="submit" className="rounded-lg bg-pink-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-pink-600">
-              Adicionar
-            </button>
-          </form>
-          <ul className="space-y-1 text-sm">
-            {entryCategories.map((cat) => (
-              <li key={cat.id} className="flex items-center justify-between">
-                <span>
-                  {cat.name} <span className="text-xs text-stone-400">({cat.type})</span>
-                </span>
-                <form action={deleteFinancialCategoryAction}>
-                  <input type="hidden" name="id" value={cat.id} />
-                  <button type="submit" className="text-xs text-red-500 hover:text-red-700">
-                    excluir
-                  </button>
-                </form>
-              </li>
-            ))}
-            {entryCategories.length === 0 && <p className="text-xs text-stone-400">Nenhuma categoria ainda.</p>}
-          </ul>
-        </div>
-
-        <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
-          <h2 className="mb-3 text-sm font-semibold text-stone-700">Novo lançamento</h2>
-          <form action={createFinancialEntryAction} className="space-y-2">
-            <div className="flex gap-2">
-              <select name="type" className="flex-1 rounded-lg border border-stone-300 px-2 py-1.5 text-sm">
-                <option value="entrada">Entrada</option>
-                <option value="saida">Saída</option>
-              </select>
-              <select name="categoryId" required className="flex-1 rounded-lg border border-stone-300 px-2 py-1.5 text-sm">
-                {entryCategories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <input
-              name="description"
-              placeholder="Descrição"
-              className="w-full rounded-lg border border-stone-300 px-2 py-1.5 text-sm"
-            />
-            <div className="flex gap-2">
-              <input
-                type="number"
-                step="0.01"
-                min="0.01"
-                name="amount"
-                placeholder="Valor"
-                required
-                className="flex-1 rounded-lg border border-stone-300 px-2 py-1.5 text-sm"
-              />
-              <input
-                type="date"
-                name="date"
-                defaultValue={todayISODate()}
-                required
-                className="flex-1 rounded-lg border border-stone-300 px-2 py-1.5 text-sm"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={entryCategories.length === 0}
-              className="rounded-lg bg-pink-500 px-4 py-2 text-sm font-medium text-white hover:bg-pink-600 disabled:opacity-40"
-            >
-              Lançar
-            </button>
-          </form>
-        </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-stone-600">Categoria</label>
+            <select name="categoryId" required className="w-full rounded-lg border border-stone-300 px-2 py-1.5 text-sm">
+              {entryCategories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-stone-600">Descrição</label>
+            <input name="description" className="w-full rounded-lg border border-stone-300 px-2 py-1.5 text-sm" />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-stone-600">Valor</label>
+            <input type="number" step="0.01" min="0.01" name="amount" required className="w-full rounded-lg border border-stone-300 px-2 py-1.5 text-sm" />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-stone-600">Data</label>
+            <input type="date" name="date" defaultValue={todayISODate()} required className="w-full rounded-lg border border-stone-300 px-2 py-1.5 text-sm" />
+          </div>
+          <button
+            type="submit"
+            disabled={entryCategories.length === 0}
+            className="rounded-lg bg-pink-500 px-4 py-2 text-sm font-medium text-white hover:bg-pink-600 disabled:opacity-40"
+          >
+            Lançar
+          </button>
+        </form>
+        {entryCategories.length === 0 && (
+          <p className="mt-2 text-xs text-amber-600">
+            Cadastre uma categoria na aba Categorias antes de lançar.
+          </p>
+        )}
       </div>
 
-      <div className="mb-8 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-stone-200">
+      <div className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-stone-200">
         <h2 className="border-b border-stone-100 px-5 py-3 text-sm font-semibold text-stone-700">
           Lançamentos do período
         </h2>
@@ -245,96 +217,154 @@ export default async function FinanceiroPage({
           </tbody>
         </table>
       </div>
+    </div>
+  );
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
-          <h2 className="mb-3 text-sm font-semibold text-stone-700">Contas a pagar</h2>
-          <form action={createPayableAction} className="mb-4 space-y-2">
-            <input
-              name="description"
-              placeholder="Descrição"
-              required
-              className="w-full rounded-lg border border-stone-300 px-2 py-1.5 text-sm"
-            />
-            <div className="flex gap-2">
-              <select name="categoryId" required className="flex-1 rounded-lg border border-stone-300 px-2 py-1.5 text-sm">
-                {entryCategories
-                  .filter((c) => c.type === "saida")
-                  .map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </option>
-                  ))}
-              </select>
-              <input
-                type="number"
-                step="0.01"
-                min="0.01"
-                name="amount"
-                placeholder="Valor"
-                required
-                className="w-28 rounded-lg border border-stone-300 px-2 py-1.5 text-sm"
-              />
+  const contasPagarTab = (
+    <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
+      <h2 className="mb-3 text-sm font-semibold text-stone-700">Nova conta a pagar</h2>
+      <form action={createPayableAction} className="mb-6 grid grid-cols-1 gap-2 sm:grid-cols-[2fr_1fr_1fr_1fr_auto] sm:items-end">
+        <div>
+          <label className="mb-1 block text-xs font-medium text-stone-600">Descrição</label>
+          <input name="description" required className="w-full rounded-lg border border-stone-300 px-2 py-1.5 text-sm" />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-medium text-stone-600">Categoria</label>
+          <select name="categoryId" required className="w-full rounded-lg border border-stone-300 px-2 py-1.5 text-sm">
+            {entryCategories
+              .filter((c) => c.type === "saida")
+              .map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+          </select>
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-medium text-stone-600">Valor</label>
+          <input type="number" step="0.01" min="0.01" name="amount" required className="w-full rounded-lg border border-stone-300 px-2 py-1.5 text-sm" />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-medium text-stone-600">Vencimento</label>
+          <input type="date" name="dueDate" required className="w-full rounded-lg border border-stone-300 px-2 py-1.5 text-sm" />
+        </div>
+        <button
+          type="submit"
+          disabled={entryCategories.filter((c) => c.type === "saida").length === 0}
+          className="rounded-lg bg-pink-500 px-4 py-2 text-sm font-medium text-white hover:bg-pink-600 disabled:opacity-40"
+        >
+          Adicionar
+        </button>
+      </form>
+      {entryCategories.filter((c) => c.type === "saida").length === 0 && (
+        <p className="mb-4 text-xs text-amber-600">
+          Cadastre uma categoria do tipo saída na aba Categorias antes de lançar.
+        </p>
+      )}
+
+      <ul className="space-y-2 text-sm">
+        {openPayables.map((payable) => (
+          <li key={payable.id} className="flex items-center justify-between border-t border-stone-100 pt-2">
+            <div>
+              <p className="text-stone-700">{payable.description}</p>
+              <p className="text-xs text-stone-400">
+                Vence {formatDate(payable.dueDate)} · {formatBRL(payable.amount)}
+              </p>
             </div>
-            <input type="date" name="dueDate" required className="w-full rounded-lg border border-stone-300 px-2 py-1.5 text-sm" />
-            <button
-              type="submit"
-              disabled={entryCategories.filter((c) => c.type === "saida").length === 0}
-              className="rounded-lg bg-pink-500 px-4 py-2 text-sm font-medium text-white hover:bg-pink-600 disabled:opacity-40"
-            >
-              Adicionar conta
-            </button>
-          </form>
+            <div className="flex gap-2">
+              <form action={markPayablePaidAction}>
+                <input type="hidden" name="id" value={payable.id} />
+                <button type="submit" className="text-xs font-medium text-green-600 hover:text-green-700">
+                  marcar paga
+                </button>
+              </form>
+              <form action={deletePayableAction}>
+                <input type="hidden" name="id" value={payable.id} />
+                <button type="submit" className="text-xs text-red-500 hover:text-red-700">
+                  excluir
+                </button>
+              </form>
+            </div>
+          </li>
+        ))}
+        {openPayables.length === 0 && <p className="text-xs text-stone-400">Nenhuma conta em aberto.</p>}
+      </ul>
+    </div>
+  );
 
-          <ul className="space-y-2 text-sm">
-            {openPayables.map((payable) => (
-              <li key={payable.id} className="flex items-center justify-between border-t border-stone-100 pt-2">
-                <div>
-                  <p className="text-stone-700">{payable.description}</p>
-                  <p className="text-xs text-stone-400">
-                    Vence {formatDate(payable.dueDate)} · {formatBRL(payable.amount)}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <form action={markPayablePaidAction}>
-                    <input type="hidden" name="id" value={payable.id} />
-                    <button type="submit" className="text-xs font-medium text-green-600 hover:text-green-700">
-                      marcar paga
-                    </button>
-                  </form>
-                  <form action={deletePayableAction}>
-                    <input type="hidden" name="id" value={payable.id} />
-                    <button type="submit" className="text-xs text-red-500 hover:text-red-700">
-                      excluir
-                    </button>
-                  </form>
-                </div>
-              </li>
-            ))}
-            {openPayables.length === 0 && <p className="text-xs text-stone-400">Nenhuma conta em aberto.</p>}
-          </ul>
-        </div>
+  const contasReceberTab = (
+    <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
+      <h2 className="mb-3 text-sm font-semibold text-stone-700">Contas a receber (fiado)</h2>
+      <p className="mb-4 text-xs text-stone-400">
+        Pagamentos de fiado são registrados na página de cada cliente, em Clientes & Fiado.
+      </p>
+      <ul className="space-y-2 text-sm">
+        {openReceivables.map((receivable) => (
+          <li key={receivable.id} className="flex items-center justify-between border-t border-stone-100 pt-2">
+            <div>
+              <Link href={`/admin/clientes/${receivable.customerId}`} className="text-pink-700 hover:underline">
+                {receivable.customerName}
+              </Link>
+              <p className="text-xs text-stone-400">Desde {formatDate(receivable.createdAt)}</p>
+            </div>
+            <span className="font-medium text-amber-600">
+              {formatBRL(receivable.originalAmount - receivable.paidAmount)}
+            </span>
+          </li>
+        ))}
+        {openReceivables.length === 0 && <p className="text-xs text-stone-400">Nenhuma conta em aberto.</p>}
+      </ul>
+    </div>
+  );
 
-        <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
-          <h2 className="mb-3 text-sm font-semibold text-stone-700">Contas a receber (fiado)</h2>
-          <ul className="space-y-2 text-sm">
-            {openReceivables.map((receivable) => (
-              <li key={receivable.id} className="flex items-center justify-between border-t border-stone-100 pt-2">
-                <div>
-                  <Link href={`/admin/clientes/${receivable.customerId}`} className="text-pink-700 hover:underline">
-                    {receivable.customerName}
-                  </Link>
-                  <p className="text-xs text-stone-400">Desde {formatDate(receivable.createdAt)}</p>
-                </div>
-                <span className="font-medium text-amber-600">
-                  {formatBRL(receivable.originalAmount - receivable.paidAmount)}
-                </span>
-              </li>
-            ))}
-            {openReceivables.length === 0 && <p className="text-xs text-stone-400">Nenhuma conta em aberto.</p>}
-          </ul>
-        </div>
-      </div>
+  const categoriasTab = (
+    <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
+      <h2 className="mb-3 text-sm font-semibold text-stone-700">Categorias financeiras</h2>
+      <p className="mb-4 text-xs text-stone-400">
+        Cadastre aqui as categorias usadas nos lançamentos e contas a pagar (ex: Ingredientes, Aluguel, Embalagens, Vendas).
+      </p>
+      <form action={createFinancialCategoryAction} className="mb-4 flex flex-wrap items-end gap-2">
+        <input name="name" placeholder="Nome" required className="w-40 rounded-lg border border-stone-300 px-2 py-1.5 text-sm" />
+        <select name="type" className="rounded-lg border border-stone-300 px-2 py-1.5 text-sm">
+          <option value="entrada">Entrada</option>
+          <option value="saida">Saída</option>
+        </select>
+        <button type="submit" className="rounded-lg bg-pink-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-pink-600">
+          Adicionar
+        </button>
+      </form>
+      <ul className="space-y-1 text-sm">
+        {entryCategories.map((cat) => (
+          <li key={cat.id} className="flex items-center justify-between border-t border-stone-100 py-1.5 first:border-0">
+            <span>
+              {cat.name} <span className="text-xs text-stone-400">({cat.type})</span>
+            </span>
+            <form action={deleteFinancialCategoryAction}>
+              <input type="hidden" name="id" value={cat.id} />
+              <button type="submit" className="text-xs text-red-500 hover:text-red-700">
+                excluir
+              </button>
+            </form>
+          </li>
+        ))}
+        {entryCategories.length === 0 && <p className="text-xs text-stone-400">Nenhuma categoria ainda.</p>}
+      </ul>
+    </div>
+  );
+
+  return (
+    <div>
+      <h1 className="mb-6 text-2xl font-semibold text-stone-800">Financeiro 💰</h1>
+
+      <FinanceTabs
+        tabs={[
+          { id: "resumo", label: "📊 Resumo", content: resumoTab },
+          { id: "lancamentos", label: "💵 Lançamentos", content: lancamentosTab },
+          { id: "pagar", label: "📤 Contas a pagar", content: contasPagarTab },
+          { id: "receber", label: "📥 Contas a receber", content: contasReceberTab },
+          { id: "categorias", label: "🏷️ Categorias", content: categoriasTab },
+        ]}
+      />
     </div>
   );
 }

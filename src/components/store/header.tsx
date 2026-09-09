@@ -33,9 +33,14 @@ export default function StoreHeader({
         </button>
 
         <div className="flex flex-col items-center">
-          {logoUrl ? (
-            <Image src={logoUrl} alt={storeName} width={40} height={40} className="mb-0.5 h-10 w-10 rounded-full object-cover" unoptimized />
-          ) : null}
+          <Image
+            src={logoUrl || "/logo.png"}
+            alt={storeName}
+            width={48}
+            height={48}
+            className="mb-0.5 h-12 w-12 rounded-full object-cover"
+            unoptimized
+          />
           <span className="font-script text-2xl text-pink-deep">{storeName}</span>
           <span
             className={`text-[11px] font-medium ${isOpen ? "text-green-600" : "text-stone-400"}`}

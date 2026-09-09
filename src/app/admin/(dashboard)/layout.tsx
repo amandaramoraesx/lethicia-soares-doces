@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Image from "next/image";
 import { requireAdmin } from "@/lib/session";
 import { logout } from "@/actions/auth";
 import NewOrderWatcher from "@/components/admin/new-order-watcher";
@@ -12,7 +13,14 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   return (
     <div className="flex min-h-screen bg-cream-dark/40 text-stone-800">
       <aside className="hidden w-60 flex-col border-r border-pink/40 bg-cream p-4 md:flex">
-        <div className="mb-6 px-2 text-center">
+        <div className="mb-6 flex flex-col items-center px-2 text-center">
+          <Image
+            src="/logo.png"
+            alt="Lethícia Soares Doces"
+            width={72}
+            height={72}
+            className="mb-2 h-18 w-18 rounded-full object-cover"
+          />
           <p className="font-script text-3xl text-pink-deep">Lethícia Soares</p>
           <p className="text-xs text-stone-400">Painel administrativo 🌷</p>
         </div>
@@ -30,7 +38,10 @@ export default async function AdminLayout({ children }: { children: ReactNode })
       <div className="flex-1">
         <header className="flex items-center justify-between border-b border-pink/40 bg-cream px-4 py-3 md:hidden">
           <MobileMenuButton />
-          <p className="font-script text-2xl text-pink-deep">Lethícia Soares</p>
+          <div className="flex items-center gap-2">
+            <Image src="/logo.png" alt="Lethícia Soares Doces" width={28} height={28} className="h-7 w-7 rounded-full object-cover" />
+            <p className="font-script text-2xl text-pink-deep">Lethícia Soares</p>
+          </div>
           <form action={logout}>
             <button type="submit" className="text-xs font-medium text-stone-400">
               🚪 Sair

@@ -6,7 +6,7 @@ const settingsDoc = () => adminDb.collection("config").doc("store");
 
 const DEFAULT_SETTINGS: StoreSettings = {
   name: "Lethícia Soares Doces",
-  logoUrl: "",
+  logoUrl: "/logo.png",
   whatsapp: "",
   address: "",
   deliveryFee: 0,

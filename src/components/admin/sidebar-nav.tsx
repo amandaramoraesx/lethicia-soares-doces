@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -70,9 +71,12 @@ export function MobileMenuButton() {
           <div className="absolute inset-0 bg-black/30" onClick={() => setOpen(false)} />
           <div className="relative flex h-full w-72 flex-col bg-cream p-4 shadow-xl">
             <div className="mb-4 flex items-center justify-between">
-              <div>
-                <p className="font-script text-3xl text-pink-deep">Lethícia Soares</p>
-                <p className="text-xs text-stone-400">Painel administrativo 🌷</p>
+              <div className="flex items-center gap-2">
+                <Image src="/logo.png" alt="Lethícia Soares Doces" width={44} height={44} className="h-11 w-11 rounded-full object-cover" />
+                <div>
+                  <p className="font-script text-2xl leading-tight text-pink-deep">Lethícia Soares</p>
+                  <p className="text-xs text-stone-400">Painel 🌷</p>
+                </div>
               </div>
               <button
                 onClick={() => setOpen(false)}

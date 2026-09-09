@@ -13,21 +13,57 @@ import {
 const customerSchema = z.object({
   name: z.string().min(1, "Informe o nome do cliente."),
   phone: z.string().min(1, "Informe o telefone."),
-  address: z.string().default(""),
+  street: z.string().default(""),
+  number: z.string().default(""),
+  neighborhood: z.string().default(""),
+  zipCode: z.string().default(""),
 });
+
+function composeAddress(fields: {
+  street: string;
+  number: string;
+  neighborhood: string;
+  zipCode: string;
+}): string {
+  const streetLine = [fields.street, fields.number && `nº ${fields.number}`]
+    .filter(Boolean)
+    .join(", ");
+  const parts = [streetLine, fields.neighborhood, fields.zipCode && `CEP ${fields.zipCode}`].filter(
+    Boolean
+  );
+  return parts.join(" - ");
+}
 
 export async function saveCustomerAction(formData: FormData) {
   const id = formData.get("id")?.toString();
   const parsed = customerSchema.parse({
     name: formData.get("name"),
     phone: formData.get("phone"),
-    address: formData.get("address") || "",
+    street: formData.get("street") || "",
+    number: formData.get("number") || "",
+    neighborhood: formData.get("neighborhood") || "",
+    zipCode: formData.get("zipCode") || "",
   });
 
+  const hasAddressInput = Boolean(
+    parsed.street || parsed.number || parsed.neighborhood || parsed.zipCode
+  );
+
   if (id) {
-    await updateCustomer(id, parsed);
+    const data: Partial<{ name: string; phone: string; address: string }> = {
+      name: parsed.name,
+      phone: parsed.phone,
+    };
+    if (hasAddressInput) {
+      data.address = composeAddress(parsed);
+    }
+    await updateCustomer(id, data);
   } else {
-    await createCustomer(parsed);
+    await createCustomer({
+      name: parsed.name,
+      phone: parsed.phone,
+      address: composeAddress(parsed),
+    });
   }
   revalidatePath("/admin/clientes");
 }

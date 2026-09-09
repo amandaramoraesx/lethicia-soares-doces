@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Quicksand, Dancing_Script } from "next/font/google";
 import "./globals.css";
 
@@ -17,6 +17,15 @@ const dancingScript = Dancing_Script({
 export const metadata: Metadata = {
   title: "Lethícia Soares Doces",
   description: "Cardápio digital e pedidos da Lethícia Soares Doces",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Lethícia Doces",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#faf3ec",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
