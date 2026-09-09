@@ -17,11 +17,6 @@ const dancingScript = Dancing_Script({
 export const metadata: Metadata = {
   title: "Lethícia Soares Doces",
   description: "Cardápio digital e pedidos da Lethícia Soares Doces",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "Lethícia Doces",
-  },
 };
 
 export const viewport: Viewport = {
