@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -16,32 +17,13 @@ const NAV_ITEMS = [
 
 export { NAV_ITEMS };
 
-export default function SidebarNav({ variant }: { variant: "desktop" | "mobile" }) {
+function useIsActive() {
   const pathname = usePathname();
+  return (href: string) => (href === "/admin" ? pathname === "/admin" : pathname.startsWith(href));
+}
 
-  function isActive(href: string) {
-    return href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
-  }
-
-  if (variant === "mobile") {
-    return (
-      <nav className="flex gap-1.5 overflow-x-auto border-b border-pink/40 bg-cream px-3 py-2 md:hidden">
-        {NAV_ITEMS.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition ${
-              isActive(item.href)
-                ? "bg-pink text-pink-deep"
-                : "bg-white text-stone-600 hover:bg-pink/50"
-            }`}
-          >
-            {item.emoji} {item.label}
-          </Link>
-        ))}
-      </nav>
-    );
-  }
+function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
+  const isActive = useIsActive();
 
   return (
     <nav className="flex flex-1 flex-col gap-1">
@@ -49,16 +31,61 @@ export default function SidebarNav({ variant }: { variant: "desktop" | "mobile" 
         <Link
           key={item.href}
           href={item.href}
-          className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+          onClick={onNavigate}
+          className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition ${
             isActive(item.href)
               ? "bg-pink text-pink-deep shadow-sm"
               : "text-stone-500 hover:bg-pink/40 hover:text-pink-deep"
           }`}
         >
-          <span className="text-base">{item.emoji}</span>
+          <span className="text-lg">{item.emoji}</span>
           {item.label}
         </Link>
       ))}
     </nav>
+  );
+}
+
+export function DesktopSidebarNav() {
+  return <NavLinks />;
+}
+
+export function MobileMenuButton() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <button
+        onClick={() => setOpen(true)}
+        aria-label="Abrir menu"
+        className="flex h-9 w-9 flex-col items-center justify-center gap-1"
+      >
+        <span className="block h-0.5 w-5 bg-pink-deep" />
+        <span className="block h-0.5 w-5 bg-pink-deep" />
+        <span className="block h-0.5 w-5 bg-pink-deep" />
+      </button>
+
+      {open && (
+        <div className="fixed inset-0 z-50 flex md:hidden">
+          <div className="absolute inset-0 bg-black/30" onClick={() => setOpen(false)} />
+          <div className="relative flex h-full w-72 flex-col bg-cream p-4 shadow-xl">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <p className="font-script text-3xl text-pink-deep">Lethícia Soares</p>
+                <p className="text-xs text-stone-400">Painel administrativo 🌷</p>
+              </div>
+              <button
+                onClick={() => setOpen(false)}
+                aria-label="Fechar menu"
+                className="text-xl text-stone-400"
+              >
+                ✕
+              </button>
+            </div>
+            <NavLinks onNavigate={() => setOpen(false)} />
+          </div>
+        </div>
+      )}
+    </>
   );
 }

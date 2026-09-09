@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { requireAdmin } from "@/lib/session";
 import { logout } from "@/actions/auth";
 import NewOrderWatcher from "@/components/admin/new-order-watcher";
-import SidebarNav from "@/components/admin/sidebar-nav";
+import { DesktopSidebarNav, MobileMenuButton } from "@/components/admin/sidebar-nav";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +16,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           <p className="font-script text-3xl text-pink-deep">Lethícia Soares</p>
           <p className="text-xs text-stone-400">Painel administrativo 🌷</p>
         </div>
-        <SidebarNav variant="desktop" />
+        <DesktopSidebarNav />
         <form action={logout}>
           <button
             type="submit"
@@ -29,6 +29,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
 
       <div className="flex-1">
         <header className="flex items-center justify-between border-b border-pink/40 bg-cream px-4 py-3 md:hidden">
+          <MobileMenuButton />
           <p className="font-script text-2xl text-pink-deep">Lethícia Soares</p>
           <form action={logout}>
             <button type="submit" className="text-xs font-medium text-stone-400">
@@ -36,7 +37,6 @@ export default async function AdminLayout({ children }: { children: ReactNode })
             </button>
           </form>
         </header>
-        <SidebarNav variant="mobile" />
         <main className="mx-auto max-w-6xl p-4 md:p-8">{children}</main>
       </div>
       <NewOrderWatcher />
