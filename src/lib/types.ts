@@ -23,6 +23,7 @@ export interface StoreSettings {
     "seg" | "ter" | "qua" | "qui" | "sex" | "sab" | "dom",
     WeekdayHours
   >;
+  manuallyClosed: boolean;
 }
 
 export interface RecipeItem {

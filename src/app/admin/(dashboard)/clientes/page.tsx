@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { listCustomers } from "@/lib/db/customers";
 import { saveCustomerAction, deleteCustomerAction } from "@/actions/customers";
-import CustomerFormToggle from "@/components/admin/customer-form-toggle";
+import FormToggle from "@/components/admin/form-toggle";
 
 function formatBRL(value: number): string {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -39,7 +39,7 @@ export default async function ClientesPage({
         </div>
       )}
 
-      <CustomerFormToggle editing={!!editing} key={editing?.id ?? "new"}>
+      <FormToggle editing={!!editing} label="Novo cliente" key={editing?.id ?? "new"}>
         <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
           <h2 className="mb-4 text-sm font-semibold text-stone-700">
             {editing ? `Editando: ${editing.name}` : "Novo cliente"}
@@ -119,7 +119,7 @@ export default async function ClientesPage({
             </div>
           </form>
         </div>
-      </CustomerFormToggle>
+      </FormToggle>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {customers.map((customer) => (

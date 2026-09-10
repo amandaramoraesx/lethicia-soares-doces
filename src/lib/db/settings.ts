@@ -21,6 +21,7 @@ const DEFAULT_SETTINGS: StoreSettings = {
     sab: { closed: false, open: "09:00", close: "13:00" },
     dom: { closed: true, open: "09:00", close: "13:00" },
   },
+  manuallyClosed: false,
 };
 
 export async function getStoreSettings(): Promise<StoreSettings> {
@@ -33,7 +34,13 @@ export async function updateStoreSettings(data: StoreSettings): Promise<void> {
   await settingsDoc().set(data, { merge: true });
 }
 
+export async function setManuallyClosed(closed: boolean): Promise<void> {
+  await settingsDoc().set({ manuallyClosed: closed }, { merge: true });
+}
+
 export function isStoreOpenNow(settings: StoreSettings): boolean {
+  if (settings.manuallyClosed) return false;
+
   const now = new Date();
   const dayKeys: Array<keyof StoreSettings["hours"]> = [
     "dom",

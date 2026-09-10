@@ -1,13 +1,17 @@
 import { getStoreSettings } from "@/lib/db/settings";
 import { saveSettingsAction } from "@/actions/settings";
 import { WEEKDAYS } from "@/lib/types";
+import StoreOpenToggle from "@/components/admin/store-open-toggle";
 
 export default async function ConfiguracoesPage() {
   const settings = await getStoreSettings();
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-semibold text-stone-800">Configurações da loja</h1>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-semibold text-stone-800">Configurações da loja</h1>
+        <StoreOpenToggle manuallyClosed={settings.manuallyClosed} />
+      </div>
 
       <form action={saveSettingsAction} className="max-w-2xl space-y-6">
         <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">

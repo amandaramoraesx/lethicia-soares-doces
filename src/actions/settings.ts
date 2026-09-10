@@ -1,10 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { updateStoreSettings } from "@/lib/db/settings";
+import { getStoreSettings, updateStoreSettings, setManuallyClosed } from "@/lib/db/settings";
 import { WEEKDAYS, type StoreSettings } from "@/lib/types";
 
 export async function saveSettingsAction(formData: FormData) {
+  const current = await getStoreSettings();
+
   const hours = {} as StoreSettings["hours"];
   for (const { key } of WEEKDAYS) {
     hours[key] = {
@@ -23,9 +25,19 @@ export async function saveSettingsAction(formData: FormData) {
     minOrder: Number(formData.get("minOrder") || 0),
     pixKey: formData.get("pixKey")?.toString() || "",
     hours,
+    manuallyClosed: current.manuallyClosed,
   };
 
   await updateStoreSettings(settings);
   revalidatePath("/admin/configuracoes");
+  revalidatePath("/admin/produtos");
+  revalidatePath("/");
+}
+
+export async function toggleStoreOpenAction(formData: FormData) {
+  const closed = formData.get("closed") === "true";
+  await setManuallyClosed(closed);
+  revalidatePath("/admin/configuracoes");
+  revalidatePath("/admin/produtos");
   revalidatePath("/");
 }
