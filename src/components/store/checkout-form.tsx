@@ -12,6 +12,16 @@ function formatBRL(value: number): string {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+// Formata enquanto digita — ajuda a manter o telefone sempre no mesmo
+// padrão, pra loja reconhecer clientes que já pediram antes.
+function formatPhoneInput(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 11);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  if (digits.length <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+}
+
 export default function CheckoutForm({ minOrder }: { minOrder: number }) {
   const router = useRouter();
   const { items, subtotal, clearCart } = useCart();
@@ -20,6 +30,7 @@ export default function CheckoutForm({ minOrder }: { minOrder: number }) {
   const [error, setError] = useState("");
   const paymentOptions = CHECKOUT_PAYMENT_METHODS_BY_DELIVERY[deliveryType];
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(paymentOptions[0]);
+  const [phone, setPhone] = useState("");
 
   function changeDeliveryType(type: "retirada" | "entrega") {
     setDeliveryType(type);
@@ -94,7 +105,16 @@ export default function CheckoutForm({ minOrder }: { minOrder: number }) {
         </div>
         <div>
           <label className="mb-1 block text-xs font-medium text-stone-600">Telefone / WhatsApp</label>
-          <input name="customerPhone" required className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm" />
+          <input
+            name="customerPhone"
+            required
+            type="tel"
+            inputMode="numeric"
+            placeholder="(11) 91234-5678"
+            value={phone}
+            onChange={(e) => setPhone(formatPhoneInput(e.target.value))}
+            className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
+          />
         </div>
 
         <div>

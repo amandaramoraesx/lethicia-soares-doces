@@ -41,16 +41,30 @@ export async function deleteCustomer(id: string): Promise<void> {
   await collection().doc(id).delete();
 }
 
+// Reduz o telefone a só os dígitos e tira o código do país (55), quando
+// presente, pra comparar números digitados com formatação diferente
+// ("(15) 99843-0109", "15 99843-0109", "15998430109"...) como sendo o mesmo
+// cliente, em vez de bater string idêntica e cadastrar duplicado.
+function normalizePhone(phone: string): string {
+  const digits = phone.replace(/\D/g, "");
+  if (digits.length > 11 && digits.startsWith("55")) return digits.slice(2);
+  return digits;
+}
+
 export async function findOrCreateCustomerByPhone(
   name: string,
   phone: string,
   address: string
 ): Promise<string> {
-  const existing = await collection().where("phone", "==", phone).limit(1).get();
-  if (!existing.empty) {
-    const doc = existing.docs[0];
-    await doc.ref.update({ name, address: address || doc.data().address || "" });
-    return doc.id;
+  const normalized = normalizePhone(phone);
+  const snap = await collection().get();
+  const existingDoc = snap.docs.find(
+    (doc) => normalizePhone((doc.data() as Customer).phone ?? "") === normalized
+  );
+
+  if (existingDoc) {
+    await existingDoc.ref.update({ name, address: address || existingDoc.data().address || "" });
+    return existingDoc.id;
   }
   return createCustomer({ name, phone, address });
 }
