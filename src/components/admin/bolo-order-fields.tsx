@@ -73,7 +73,13 @@ function RecheioSelect({
 
 type Modo = "bolo" | "docinho" | "outro";
 
-export default function BoloOrderFields({ initialDoceName }: { initialDoceName?: string }) {
+export default function BoloOrderFields({
+  initialDoceName,
+  produtosDisponiveis,
+}: {
+  initialDoceName?: string;
+  produtosDisponiveis: string[];
+}) {
   const [modo, setModo] = useState<Modo>(initialDoceName ? "outro" : "bolo");
 
   return (
@@ -161,20 +167,53 @@ export default function BoloOrderFields({ initialDoceName }: { initialDoceName?:
               </div>
             </div>
           ))}
+          <div>
+            <label className="mb-1 block text-xs font-medium text-stone-600">
+              Outro sabor (opcional, digite manualmente)
+            </label>
+            <input
+              name="docinhoSaborManual"
+              placeholder="Ex: Beijinho com coco queimado"
+              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
+            />
+          </div>
         </div>
       )}
 
       {modo === "outro" && (
-        <div>
+        <div className="space-y-3">
           <input type="hidden" name="itemType" value="outro" />
-          <label className="mb-1 block text-xs font-medium text-stone-600">Doce / bolo</label>
-          <input
-            name="doceName"
-            required
-            defaultValue={initialDoceName ?? ""}
-            placeholder="Ex: Cento de docinhos sortido"
-            className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
-          />
+          {produtosDisponiveis.length > 0 && (
+            <div>
+              <p className="mb-1.5 text-xs font-medium text-stone-600">
+                Doces de pronta entrega (marque um ou mais)
+              </p>
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 sm:grid-cols-3">
+                {produtosDisponiveis.map((nome) => (
+                  <label key={nome} className="flex items-center gap-1.5 text-sm text-stone-600">
+                    <input
+                      type="checkbox"
+                      name="outroProduto"
+                      value={nome}
+                      className="h-4 w-4 rounded border-stone-300"
+                    />
+                    {nome}
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+          <div>
+            <label className="mb-1 block text-xs font-medium text-stone-600">
+              Outro (opcional, digite manualmente)
+            </label>
+            <input
+              name="outroManual"
+              defaultValue={initialDoceName ?? ""}
+              placeholder="Ex: Cento de docinhos sortido"
+              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
+            />
+          </div>
         </div>
       )}
     </div>

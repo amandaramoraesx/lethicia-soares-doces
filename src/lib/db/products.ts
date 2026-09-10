@@ -54,6 +54,9 @@ export async function decrementProductStock(id: string, quantity: number): Promi
     if (!snap.exists) return;
     const current = (snap.data() as Product).stockQty ?? 0;
     const newQty = Math.max(0, current - quantity);
-    tx.update(ref, { stockQty: newQty, active: newQty > 0 });
+    // Não desativa o produto ao zerar o estoque — ele continua visível no
+    // cardápio como "Indisponível hoje" (com opção de encomendar), em vez de
+    // sumir. Só o botão "Esgotar" na listagem desativa de verdade.
+    tx.update(ref, { stockQty: newQty });
   });
 }

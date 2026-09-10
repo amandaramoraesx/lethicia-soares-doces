@@ -52,7 +52,7 @@ export default function ProductCard({ product, whatsapp }: { product: Product; w
           {outOfStock && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/40">
               <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-stone-700">
-                Indisponível hoje
+                🙁 Indisponível hoje
               </span>
             </div>
           )}
@@ -82,7 +82,7 @@ export default function ProductCard({ product, whatsapp }: { product: Product; w
           {outOfStock && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/40">
               <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-stone-700">
-                Indisponível hoje
+                🙁 Indisponível hoje
               </span>
             </div>
           )}

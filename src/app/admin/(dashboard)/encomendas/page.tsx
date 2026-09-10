@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { listCustomOrders } from "@/lib/db/custom-orders";
 import { listCustomers } from "@/lib/db/customers";
+import { listAvailableProducts } from "@/lib/db/products";
 import { saveCustomOrderAction, markCustomOrderStatusAction, deleteCustomOrderAction } from "@/actions/custom-orders";
 import FormToggle from "@/components/admin/form-toggle";
 import BoloOrderFields from "@/components/admin/bolo-order-fields";
@@ -58,6 +59,18 @@ function OrderTitle({ order }: { order: CustomOrder }) {
         {order.sabores && order.sabores.length > 0 && (
           <p className="mt-0.5 text-sm text-stone-600">{order.sabores.join(", ")}</p>
         )}
+      </div>
+    );
+  }
+
+  if (order.sabores && order.sabores.length > 0) {
+    return (
+      <div>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-base font-medium text-stone-800">🍰 Outro</span>
+          <span className="text-sm text-stone-500">· {quantityLabel}</span>
+        </div>
+        <p className="mt-0.5 text-sm text-stone-600">{order.sabores.join(", ")}</p>
       </div>
     );
   }
@@ -159,7 +172,12 @@ export default async function EncomendasPage({
   searchParams: Promise<{ edit?: string; saved?: string }>;
 }) {
   const { edit, saved } = await searchParams;
-  const [orders, customers] = await Promise.all([listCustomOrders(), listCustomers()]);
+  const [orders, customers, products] = await Promise.all([
+    listCustomOrders(),
+    listCustomers(),
+    listAvailableProducts(),
+  ]);
+  const produtosDisponiveis = products.map((p) => p.name);
   const editing = edit ? orders.find((o) => o.id === edit) : null;
   const phoneByCustomerId = new Map(customers.map((c) => [c.id, c.phone]));
 
@@ -200,7 +218,11 @@ export default async function EncomendasPage({
               </select>
             </div>
 
-            <BoloOrderFields key={editing?.id ?? "new"} initialDoceName={editing?.doceName} />
+            <BoloOrderFields
+              key={editing?.id ?? "new"}
+              initialDoceName={editing?.doceName}
+              produtosDisponiveis={produtosDisponiveis}
+            />
 
             <div className="flex gap-2">
               <div className="flex-1">

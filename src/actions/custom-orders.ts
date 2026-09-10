@@ -14,6 +14,8 @@ const customOrderSchema = z.object({
   recheioBolo2: z.string().default(""),
   massaBolo: z.string().default(""),
   tamanhoBolo: z.string().default(""),
+  docinhoSaborManual: z.string().default(""),
+  outroManual: z.string().default(""),
   quantity: z.coerce.number().positive(),
   unit: z.enum(["un", "kg"]),
   deliveryDate: z.string().min(1, "Informe a data."),
@@ -30,8 +32,8 @@ function composeBoloName(fields: {
   return `Bolo (massa ${fields.massaBolo}) — ${recheios} — Tamanho ${fields.tamanhoBolo}`;
 }
 
-function composeDocinhoName(sabores: string[]): string {
-  return `Docinhos — ${sabores.join(", ")}`;
+function composeListName(prefix: string, sabores: string[]): string {
+  return `${prefix} — ${sabores.join(", ")}`;
 }
 
 export async function saveCustomOrderAction(formData: FormData) {
@@ -44,22 +46,34 @@ export async function saveCustomOrderAction(formData: FormData) {
     recheioBolo2: formData.get("recheioBolo2") || "",
     massaBolo: formData.get("massaBolo") || "",
     tamanhoBolo: formData.get("tamanhoBolo") || "",
+    docinhoSaborManual: formData.get("docinhoSaborManual") || "",
+    outroManual: formData.get("outroManual") || "",
     quantity: formData.get("quantity"),
     unit: formData.get("unit"),
     deliveryDate: formData.get("deliveryDate"),
     notes: formData.get("notes") || "",
   });
-  const docinhoSabores = formData.getAll("docinhoSabor").map((v) => v.toString()).filter(Boolean);
+  const docinhoSabores = [
+    ...formData.getAll("docinhoSabor").map((v) => v.toString()),
+    parsed.docinhoSaborManual,
+  ].filter(Boolean);
+  const outroSabores = [
+    ...formData.getAll("outroProduto").map((v) => v.toString()),
+    parsed.outroManual,
+  ].filter(Boolean);
 
   const doceName =
     parsed.itemType === "bolo"
       ? composeBoloName(parsed)
       : parsed.itemType === "docinho"
-        ? composeDocinhoName(docinhoSabores)
-        : parsed.doceName;
+        ? composeListName("Docinhos", docinhoSabores)
+        : outroSabores.length > 0
+          ? outroSabores.join(", ")
+          : parsed.doceName;
 
-  // Campos estruturados só existem para bolo/docinho — omitidos (não `undefined`)
-  // para "outro", já que o Firestore rejeita valores `undefined` explícitos.
+  // Campos estruturados só existem para bolo/docinho/outro com seleção —
+  // omitidos (não `undefined`) quando não se aplicam, já que o Firestore
+  // rejeita valores `undefined` explícitos.
   const structuredFields =
     parsed.itemType === "bolo"
       ? {
@@ -69,7 +83,9 @@ export async function saveCustomOrderAction(formData: FormData) {
         }
       : parsed.itemType === "docinho"
         ? { sabores: docinhoSabores }
-        : {};
+        : outroSabores.length > 0
+          ? { sabores: outroSabores }
+          : {};
 
   const customer = parsed.customerId ? await getCustomer(parsed.customerId) : null;
 
