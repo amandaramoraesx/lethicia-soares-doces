@@ -26,6 +26,10 @@ export default async function ClienteDetalhePage({
     listFiadoEntries(id),
   ]);
 
+  const validOrders = orders.filter((o) => o.status !== "cancelado");
+  const totalGasto = validOrders.reduce((sum, o) => sum + o.total, 0);
+  const ticketMedio = validOrders.length > 0 ? totalGasto / validOrders.length : 0;
+
   const topDoces = (() => {
     const map = new Map<string, { name: string; quantity: number }>();
     for (const order of orders) {
@@ -79,7 +83,25 @@ export default async function ClienteDetalhePage({
 
       <div className="space-y-4">
         <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
-          <h2 className="mb-2 text-sm font-semibold text-stone-700">Saldo devedor (fiado)</h2>
+          <h2 className="mb-3 text-sm font-semibold text-stone-700">💰 Financeiro</h2>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <div>
+              <p className="text-xs text-stone-400">Total gasto</p>
+              <p className="text-lg font-semibold text-stone-800">{formatBRL(totalGasto)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-stone-400">Pedidos realizados</p>
+              <p className="text-lg font-semibold text-stone-800">{validOrders.length}</p>
+            </div>
+            <div>
+              <p className="text-xs text-stone-400">Ticket médio</p>
+              <p className="text-lg font-semibold text-stone-800">{formatBRL(ticketMedio)}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
+          <h2 className="mb-2 text-sm font-semibold text-stone-700">Valores em aberto</h2>
           <p className="mb-4 text-3xl font-semibold text-amber-600">{formatBRL(customer.fiadoBalance)}</p>
 
           {customer.fiadoBalance > 0 && (
