@@ -9,7 +9,6 @@ const NAV_ITEMS = [
   { href: "/admin", label: "Dashboard", emoji: "🌸" },
   { href: "/admin/pedidos", label: "Pedidos", emoji: "🧾" },
   { href: "/admin/produtos", label: "Produtos", emoji: "🍰" },
-  { href: "/admin/categorias", label: "Categorias", emoji: "🗂️" },
   { href: "/admin/estoque", label: "Estoque", emoji: "📦" },
   { href: "/admin/clientes", label: "Clientes & Fiado", emoji: "💌" },
   { href: "/admin/financeiro", label: "Financeiro", emoji: "💰" },

@@ -3,12 +3,22 @@ import { createManualOrderAction } from "@/actions/orders";
 import ManualOrderItems from "@/components/admin/manual-order-items";
 import { PAYMENT_METHOD_LABELS } from "@/lib/types";
 
-export default async function NovoPedidoPage() {
-  const products = await listAvailableProducts();
+export default async function NovoPedidoPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const [products, { error }] = await Promise.all([listAvailableProducts(), searchParams]);
 
   return (
     <div>
       <h1 className="mb-6 text-2xl font-semibold text-stone-800">Novo pedido manual</h1>
+
+      {error === "items" && (
+        <p className="mb-4 max-w-xl rounded-lg bg-red-50 px-4 py-2 text-sm text-red-600 ring-1 ring-red-200">
+          Adicione pelo menos um item ao pedido antes de registrar.
+        </p>
+      )}
 
       <form
         action={createManualOrderAction}

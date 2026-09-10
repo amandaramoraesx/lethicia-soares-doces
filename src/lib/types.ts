@@ -25,13 +25,6 @@ export interface StoreSettings {
   >;
 }
 
-export interface Category {
-  id: string;
-  name: string;
-  order: number;
-  active: boolean;
-}
-
 export interface RecipeItem {
   ingredientId: string;
   quantity: number;
@@ -42,7 +35,6 @@ export interface Product {
   name: string;
   description: string;
   price: number;
-  categoryId: string;
   imageUrl: string;
   active: boolean;
   featured: boolean;

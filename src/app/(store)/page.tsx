@@ -1,19 +1,15 @@
-import { listCategories } from "@/lib/db/categories";
 import { listAvailableProducts } from "@/lib/db/products";
 import { getStoreSettings, isStoreOpenNow } from "@/lib/db/settings";
 import { WEEKDAYS } from "@/lib/types";
-import { categoryEmoji } from "@/lib/category-emoji";
 import ProductCard from "@/components/store/product-card";
 
 export default async function CardapioPage() {
-  const [categories, products, settings] = await Promise.all([
-    listCategories(),
+  const [products, settings] = await Promise.all([
     listAvailableProducts(),
     getStoreSettings(),
   ]);
 
   const isOpen = isStoreOpenNow(settings);
-  const activeCategories = categories.filter((c) => c.active);
   const todayKey = WEEKDAYS[(new Date().getDay() + 6) % 7].key;
   const todayHours = settings.hours[todayKey];
 
@@ -33,22 +29,13 @@ export default async function CardapioPage() {
         )}
       </section>
 
-      {activeCategories.map((category) => {
-        const categoryProducts = products.filter((p) => p.categoryId === category.id);
-        if (categoryProducts.length === 0) return null;
-        return (
-          <section key={category.id} id={`categoria-${category.id}`} className="mb-8 scroll-mt-24">
-            <h2 className="mb-3 text-lg font-semibold text-pink-deep">
-              {categoryEmoji(category.name)} {category.name}
-            </h2>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {categoryProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          </section>
-        );
-      })}
+      {products.length > 0 && (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      )}
 
       {products.length === 0 && (
         <p className="mt-10 text-center text-sm text-stone-400">

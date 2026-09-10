@@ -73,7 +73,12 @@ export default function ManualOrderItems({ products }: { products: Product[] }) 
             </button>
           </div>
         ))}
-        {rows.length === 0 && (
+        {rows.length === 0 && products.length === 0 && (
+          <p className="text-xs text-red-500">
+            Nenhum produto cadastrado ainda — cadastre um produto antes de criar um pedido.
+          </p>
+        )}
+        {rows.length === 0 && products.length > 0 && (
           <p className="text-xs text-stone-400">Nenhum item adicionado.</p>
         )}
       </div>

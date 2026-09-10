@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { getStoreSettings, isStoreOpenNow } from "@/lib/db/settings";
-import { listCategories } from "@/lib/db/categories";
 import { CartProvider } from "@/lib/cart-context";
 import StoreHeader from "@/components/store/header";
 import CartDrawer from "@/components/store/cart-drawer";
@@ -24,9 +23,8 @@ export const metadata: Metadata = {
 };
 
 export default async function StoreLayout({ children }: { children: ReactNode }) {
-  const [settings, categories] = await Promise.all([getStoreSettings(), listCategories()]);
+  const settings = await getStoreSettings();
   const isOpen = isStoreOpenNow(settings);
-  const activeCategories = categories.filter((c) => c.active);
 
   return (
     <CartProvider>
@@ -34,7 +32,6 @@ export default async function StoreLayout({ children }: { children: ReactNode })
         storeName={settings.name}
         logoUrl={settings.logoUrl}
         isOpen={isOpen}
-        categories={activeCategories}
       />
       {children}
       <CartDrawer />

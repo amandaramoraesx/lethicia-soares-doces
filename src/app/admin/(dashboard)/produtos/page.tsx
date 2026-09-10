@@ -1,6 +1,5 @@
 import Image from "next/image";
 import { listProducts } from "@/lib/db/products";
-import { listCategories } from "@/lib/db/categories";
 import { listIngredients } from "@/lib/db/ingredients";
 import { saveProductAction, deleteProductAction } from "@/actions/products";
 import RecipeEditor from "@/components/admin/recipe-editor";
@@ -15,9 +14,8 @@ export default async function ProdutosPage({
   searchParams: Promise<{ edit?: string }>;
 }) {
   const { edit } = await searchParams;
-  const [products, categories, ingredients] = await Promise.all([
+  const [products, ingredients] = await Promise.all([
     listProducts(),
-    listCategories(),
     listIngredients(),
   ]);
   const editing = edit ? products.find((p) => p.id === edit) : null;
@@ -41,25 +39,6 @@ export default async function ProdutosPage({
               defaultValue={editing?.name ?? ""}
               className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
             />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-xs font-medium text-stone-600">Categoria</label>
-            <select
-              name="categoryId"
-              required
-              defaultValue={editing?.categoryId ?? ""}
-              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
-            >
-              <option value="" disabled>
-                Selecione
-              </option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
           </div>
 
           <div className="md:col-span-2">
@@ -150,7 +129,6 @@ export default async function ProdutosPage({
           <thead className="bg-stone-50 text-left text-xs font-semibold uppercase text-stone-500">
             <tr>
               <th className="px-4 py-3">Produto</th>
-              <th className="px-4 py-3">Categoria</th>
               <th className="px-4 py-3">Preço</th>
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3"></th>
@@ -176,9 +154,6 @@ export default async function ProdutosPage({
                     <p className="font-medium text-stone-700">{product.name}</p>
                     {product.featured && <span className="text-xs text-pink-500">Destaque</span>}
                   </div>
-                </td>
-                <td className="px-4 py-3">
-                  {categories.find((c) => c.id === product.categoryId)?.name ?? "—"}
                 </td>
                 <td className="px-4 py-3">{formatBRL(product.price)}</td>
                 <td className="px-4 py-3">
@@ -210,7 +185,7 @@ export default async function ProdutosPage({
             ))}
             {products.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-stone-400">
+                <td colSpan={4} className="px-4 py-6 text-center text-stone-400">
                   Nenhum produto cadastrado.
                 </td>
               </tr>

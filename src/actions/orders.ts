@@ -42,7 +42,7 @@ export async function createManualOrderAction(formData: FormData) {
   const validItems = itemsInput.filter((item) => item.productId && item.quantity > 0);
 
   if (validItems.length === 0) {
-    return;
+    redirect("/admin/pedidos/novo?error=items");
   }
 
   const products = await getProductsByIds(validItems.map((i) => i.productId));
