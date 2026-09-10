@@ -121,6 +121,7 @@ export interface Customer {
   name: string;
   phone: string;
   address: string;
+  internalNote: string;
   createdAt: string;
   fiadoBalance: number;
 }

@@ -17,6 +17,7 @@ const customerSchema = z.object({
   number: z.string().default(""),
   neighborhood: z.string().default(""),
   zipCode: z.string().default(""),
+  internalNote: z.string().default(""),
 });
 
 function composeAddress(fields: {
@@ -43,6 +44,7 @@ export async function saveCustomerAction(formData: FormData) {
     number: formData.get("number") || "",
     neighborhood: formData.get("neighborhood") || "",
     zipCode: formData.get("zipCode") || "",
+    internalNote: formData.get("internalNote") || "",
   });
 
   const hasAddressInput = Boolean(
@@ -50,9 +52,10 @@ export async function saveCustomerAction(formData: FormData) {
   );
 
   if (id) {
-    const data: Partial<{ name: string; phone: string; address: string }> = {
+    const data: Partial<{ name: string; phone: string; address: string; internalNote: string }> = {
       name: parsed.name,
       phone: parsed.phone,
+      internalNote: parsed.internalNote,
     };
     if (hasAddressInput) {
       data.address = composeAddress(parsed);
@@ -63,6 +66,7 @@ export async function saveCustomerAction(formData: FormData) {
       name: parsed.name,
       phone: parsed.phone,
       address: composeAddress(parsed),
+      internalNote: parsed.internalNote,
     });
   }
   revalidatePath("/admin/clientes");

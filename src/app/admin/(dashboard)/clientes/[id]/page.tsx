@@ -84,6 +84,23 @@ export default async function ClienteDetalhePage({
       </div>
 
       <div className="space-y-4">
+        <div className="rounded-xl bg-amber-50 p-5 ring-1 ring-amber-200">
+          <div className="mb-2 flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-amber-800">📝 Observação interna</h2>
+            <a
+              href={`/admin/clientes?edit=${customer.id}`}
+              className="text-xs font-medium text-amber-700 hover:underline"
+            >
+              Editar
+            </a>
+          </div>
+          {customer.internalNote ? (
+            <p className="whitespace-pre-wrap text-sm text-amber-900">{customer.internalNote}</p>
+          ) : (
+            <p className="text-sm text-amber-700/60">Nenhuma observação registrada.</p>
+          )}
+        </div>
+
         <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
           <h2 className="mb-3 text-sm font-semibold text-stone-700">💰 Financeiro</h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">

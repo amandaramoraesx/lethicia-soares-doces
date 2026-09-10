@@ -106,6 +106,19 @@ export default async function ClientesPage({
               </div>
             </div>
 
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-pink-deep">
+                Observação interna
+              </p>
+              <textarea
+                name="internalNote"
+                rows={3}
+                defaultValue={editing?.internalNote ?? ""}
+                placeholder="Só você vê isso — ex: prefere entrega pela manhã, alergia a nozes, etc."
+                className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
+              />
+            </div>
+
             <div className="flex items-center gap-3">
               <button
                 type="submit"

@@ -18,10 +18,15 @@ export async function getCustomer(id: string): Promise<Customer | null> {
 }
 
 export async function createCustomer(
-  data: Omit<Customer, "id" | "createdAt" | "fiadoBalance">
+  data: Omit<Customer, "id" | "createdAt" | "fiadoBalance" | "internalNote"> & { internalNote?: string }
 ): Promise<string> {
   const ref = collection().doc();
-  await ref.set({ ...data, createdAt: new Date().toISOString(), fiadoBalance: 0 });
+  await ref.set({
+    ...data,
+    internalNote: data.internalNote ?? "",
+    createdAt: new Date().toISOString(),
+    fiadoBalance: 0,
+  });
   return ref.id;
 }
 
