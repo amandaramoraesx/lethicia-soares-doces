@@ -125,7 +125,7 @@ export default async function EncomendasPage({
           <h2 className="mb-4 text-sm font-semibold text-stone-700">
             {editing ? `Editando encomenda` : "Nova encomenda"}
           </h2>
-          <form action={saveCustomOrderAction} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <form action={saveCustomOrderAction} className="flex flex-col gap-4">
             {editing && <input type="hidden" name="id" value={editing.id} />}
 
             <div>
@@ -192,7 +192,7 @@ export default async function EncomendasPage({
               />
             </div>
 
-            <div className="sm:col-span-2">
+            <div>
               <label className="mb-1 block text-xs font-medium text-stone-600">Observação</label>
               <textarea
                 name="notes"
@@ -202,7 +202,7 @@ export default async function EncomendasPage({
               />
             </div>
 
-            <div className="sm:col-span-2 flex items-center gap-3">
+            <div className="flex items-center gap-3">
               <button
                 type="submit"
                 className="rounded-lg bg-pink-500 px-4 py-2 text-sm font-medium text-white hover:bg-pink-600"
