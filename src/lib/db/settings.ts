@@ -69,6 +69,18 @@ export function getBrazilNow(): { dayOfWeek: number; hours: number; minutes: num
   };
 }
 
+// Início do dia de hoje (00:00 em Brasília), como instante UTC — usado pra
+// filtrar "pedidos de hoje" sem cair no mesmo problema de fuso horário.
+export function startOfTodayBrazilISO(): string {
+  const todayDate = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+  return new Date(`${todayDate}T00:00:00-03:00`).toISOString();
+}
+
 export function isStoreOpenNow(settings: StoreSettings): boolean {
   if (settings.manuallyClosed) return false;
 

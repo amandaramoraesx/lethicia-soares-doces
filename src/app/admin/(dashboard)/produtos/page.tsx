@@ -5,6 +5,7 @@ import { saveProductAction, deleteProductAction, toggleProductActiveAction } fro
 import ProductPhotosEditor from "@/components/admin/product-photos-editor";
 import FormToggle from "@/components/admin/form-toggle";
 import StoreOpenToggle from "@/components/admin/store-open-toggle";
+import StoreStatusBadge from "@/components/admin/store-status-badge";
 
 function formatBRL(value: number): string {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -23,7 +24,10 @@ export default async function ProdutosPage({
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold text-stone-800">Doces</h1>
-        <StoreOpenToggle manuallyClosed={settings.manuallyClosed} />
+        <div className="flex flex-wrap items-center gap-2">
+          <StoreStatusBadge settings={settings} />
+          <StoreOpenToggle manuallyClosed={settings.manuallyClosed} />
+        </div>
       </div>
 
       {saved === "1" && (

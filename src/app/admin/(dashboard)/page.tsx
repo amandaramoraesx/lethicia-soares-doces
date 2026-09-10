@@ -1,19 +1,15 @@
 import { listOrders } from "@/lib/db/orders";
+import { getStoreSettings, startOfTodayBrazilISO } from "@/lib/db/settings";
 import { ORDER_STATUS_LABELS } from "@/lib/types";
-
-function startOfTodayISO(): string {
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  return now.toISOString();
-}
+import StoreStatusBadge from "@/components/admin/store-status-badge";
 
 function formatBRL(value: number): string {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
 export default async function AdminDashboardPage() {
-  const orders = await listOrders();
-  const todayISO = startOfTodayISO();
+  const [orders, settings] = await Promise.all([listOrders(), getStoreSettings()]);
+  const todayISO = startOfTodayBrazilISO();
   const todayOrders = orders.filter((o) => o.createdAt >= todayISO && o.status !== "cancelado");
 
   const totalVendidoHoje = todayOrders.reduce((sum, o) => sum + o.total, 0);
@@ -38,7 +34,10 @@ export default async function AdminDashboardPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-semibold text-stone-800">Dashboard</h1>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-semibold text-stone-800">Dashboard</h1>
+        <StoreStatusBadge settings={settings} />
+      </div>
 
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">

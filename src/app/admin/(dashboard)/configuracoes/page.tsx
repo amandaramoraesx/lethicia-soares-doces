@@ -2,6 +2,7 @@ import { getStoreSettings } from "@/lib/db/settings";
 import { saveSettingsAction } from "@/actions/settings";
 import { WEEKDAYS } from "@/lib/types";
 import StoreOpenToggle from "@/components/admin/store-open-toggle";
+import StoreStatusBadge from "@/components/admin/store-status-badge";
 
 export default async function ConfiguracoesPage({
   searchParams,
@@ -14,7 +15,10 @@ export default async function ConfiguracoesPage({
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold text-stone-800">Configurações da loja</h1>
-        <StoreOpenToggle manuallyClosed={settings.manuallyClosed} />
+        <div className="flex flex-wrap items-center gap-2">
+          <StoreStatusBadge settings={settings} />
+          <StoreOpenToggle manuallyClosed={settings.manuallyClosed} />
+        </div>
       </div>
 
       {saved === "1" && (
