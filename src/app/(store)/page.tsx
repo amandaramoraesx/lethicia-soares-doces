@@ -1,7 +1,7 @@
 import { listAvailableProducts } from "@/lib/db/products";
 import { getStoreSettings, isStoreOpenNow } from "@/lib/db/settings";
 import { WEEKDAYS } from "@/lib/types";
-import ProductCard from "@/components/store/product-card";
+import LiveMenu from "@/components/store/live-menu";
 
 export default async function CardapioPage() {
   const [products, settings] = await Promise.all([
@@ -29,19 +29,7 @@ export default async function CardapioPage() {
         )}
       </section>
 
-      {products.length > 0 && (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-      )}
-
-      {products.length === 0 && (
-        <p className="mt-10 text-center text-sm text-stone-400">
-          Nenhum produto disponível no momento. Volte em breve! 💗
-        </p>
-      )}
+      <LiveMenu initialProducts={products} />
     </main>
   );
 }

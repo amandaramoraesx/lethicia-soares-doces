@@ -22,11 +22,11 @@ export default async function ProdutosPage({
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-semibold text-stone-800">Produtos</h1>
+      <h1 className="mb-6 text-2xl font-semibold text-stone-800">Doces</h1>
 
       <div className="mb-8 rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
         <h2 className="mb-4 text-sm font-semibold text-stone-700">
-          {editing ? `Editando: ${editing.name}` : "Novo produto"}
+          {editing ? `Editando: ${editing.name}` : "Novo doce"}
         </h2>
         <form action={saveProductAction} className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {editing && <input type="hidden" name="id" value={editing.id} />}
@@ -65,13 +65,29 @@ export default async function ProdutosPage({
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-stone-600">URL da foto</label>
-            <input
-              name="imageUrl"
-              defaultValue={editing?.imageUrl ?? ""}
-              placeholder="https://..."
-              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
-            />
+            <label className="mb-1 block text-xs font-medium text-stone-600">Foto</label>
+            <input type="hidden" name="existingImageUrl" value={editing?.imageUrl ?? ""} />
+            <div className="flex items-center gap-3">
+              {editing?.imageUrl && (
+                <Image
+                  src={editing.imageUrl}
+                  alt={editing.name}
+                  width={48}
+                  height={48}
+                  className="h-12 w-12 shrink-0 rounded-lg object-cover"
+                  unoptimized
+                />
+              )}
+              <input
+                type="file"
+                name="imageFile"
+                accept="image/*"
+                className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-pink-50 file:px-3 file:py-1 file:text-xs file:font-medium file:text-pink-600"
+              />
+            </div>
+            {editing?.imageUrl && (
+              <p className="mt-1 text-xs text-stone-400">Escolha uma nova foto só se quiser trocar.</p>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-4">
@@ -113,7 +129,7 @@ export default async function ProdutosPage({
               type="submit"
               className="rounded-lg bg-pink-500 px-4 py-2 text-sm font-medium text-white hover:bg-pink-600"
             >
-              {editing ? "Salvar alterações" : "Cadastrar produto"}
+              {editing ? "Salvar alterações" : "Cadastrar doce"}
             </button>
             {editing && (
               <a href="/admin/produtos" className="text-sm text-stone-500 hover:underline">
@@ -128,7 +144,7 @@ export default async function ProdutosPage({
         <table className="w-full text-sm">
           <thead className="bg-stone-50 text-left text-xs font-semibold uppercase text-stone-500">
             <tr>
-              <th className="px-4 py-3">Produto</th>
+              <th className="px-4 py-3">Doce</th>
               <th className="px-4 py-3">Preço</th>
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3"></th>
@@ -186,7 +202,7 @@ export default async function ProdutosPage({
             {products.length === 0 && (
               <tr>
                 <td colSpan={4} className="px-4 py-6 text-center text-stone-400">
-                  Nenhum produto cadastrado.
+                  Nenhum doce cadastrado.
                 </td>
               </tr>
             )}

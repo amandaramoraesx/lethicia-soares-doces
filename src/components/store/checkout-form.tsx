@@ -10,24 +10,12 @@ function formatBRL(value: number): string {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-export default function CheckoutForm({
-  whatsapp,
-  deliveryFee,
-  minOrder,
-}: {
-  whatsapp: string;
-  deliveryFee: number;
-  minOrder: number;
-}) {
+export default function CheckoutForm({ minOrder }: { minOrder: number }) {
   const router = useRouter();
   const { items, subtotal, clearCart } = useCart();
   const [deliveryType, setDeliveryType] = useState<"retirada" | "entrega">("retirada");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [confirmedOrderId, setConfirmedOrderId] = useState<string | null>(null);
-  const [confirmedName, setConfirmedName] = useState("");
-
-  const total = subtotal + (deliveryType === "entrega" ? deliveryFee : 0);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -53,12 +41,11 @@ export default function CheckoutForm({
       return;
     }
 
-    setConfirmedOrderId(result.orderId ?? null);
-    setConfirmedName(customerName);
     clearCart();
+    router.push(`/pedido/${result.orderId}`);
   }
 
-  if (items.length === 0 && !confirmedOrderId) {
+  if (items.length === 0) {
     return (
       <div className="mx-auto max-w-md px-4 py-16 text-center">
         <p className="text-stone-500">Seu carrinho está vazio.</p>
@@ -68,43 +55,6 @@ export default function CheckoutForm({
         >
           Ver cardápio
         </button>
-      </div>
-    );
-  }
-
-  if (confirmedOrderId) {
-    const whatsappHref = whatsapp
-      ? `https://wa.me/${whatsapp}?text=${encodeURIComponent(
-          `Olá! Sou ${confirmedName}, acabei de finalizar o pedido #${confirmedOrderId.slice(0, 6)} pelo cardápio digital 💗`
-        )}`
-      : null;
-
-    return (
-      <div className="mx-auto max-w-md px-4 py-16 text-center">
-        <p className="text-4xl">🎉</p>
-        <h1 className="mt-3 font-script text-3xl text-pink-deep">Pedido recebido!</h1>
-        <p className="mt-2 text-sm text-stone-500">
-          Seu pedido #{confirmedOrderId.slice(0, 6)} já está com a loja e aparece no painel — nenhuma
-          confirmação adicional é necessária.
-        </p>
-        {whatsappHref && (
-          <a
-            href={whatsappHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-6 inline-block rounded-full bg-[#25D366] px-5 py-2.5 text-sm font-semibold text-white"
-          >
-            💬 Falar com a loja (opcional)
-          </a>
-        )}
-        <div>
-          <button
-            onClick={() => router.push("/")}
-            className="mt-6 text-sm font-medium text-pink-deep hover:underline"
-          >
-            Voltar ao cardápio
-          </button>
-        </div>
       </div>
     );
   }
@@ -153,9 +103,14 @@ export default function CheckoutForm({
                 deliveryType === "entrega" ? "border-pink-deep bg-pink text-pink-deep" : "border-stone-300"
               }`}
             >
-              Entrega (+{formatBRL(deliveryFee)})
+              Entrega
             </button>
           </div>
+          {deliveryType === "entrega" && (
+            <p className="mt-1.5 text-xs text-stone-500">
+              A taxa de entrega será calculada pela loja e informada junto com a confirmação do pedido.
+            </p>
+          )}
         </div>
 
         {deliveryType === "entrega" && (
@@ -186,8 +141,8 @@ export default function CheckoutForm({
         )}
 
         <div className="flex justify-between text-sm font-semibold text-stone-700">
-          <span>Total</span>
-          <span>{formatBRL(total)}</span>
+          <span>{deliveryType === "entrega" ? "Subtotal" : "Total"}</span>
+          <span>{formatBRL(subtotal)}</span>
         </div>
 
         {error && <p className="text-sm text-red-600">{error}</p>}

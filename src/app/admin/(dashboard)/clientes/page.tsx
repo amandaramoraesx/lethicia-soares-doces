@@ -14,10 +14,29 @@ export default async function ClientesPage({
   const { edit } = await searchParams;
   const customers = await listCustomers();
   const editing = edit ? customers.find((c) => c.id === edit) : null;
+  const emAberto = customers.filter((c) => c.fiadoBalance > 0);
 
   return (
     <div>
       <h1 className="mb-6 text-2xl font-semibold text-stone-800">Clientes 💌</h1>
+
+      {emAberto.length > 0 && (
+        <div className="mb-8 rounded-xl bg-amber-50 p-5 ring-1 ring-amber-200">
+          <h2 className="mb-3 text-sm font-semibold text-amber-800">
+            Em aberto (fiado) — {emAberto.length}
+          </h2>
+          <ul className="space-y-2">
+            {emAberto.map((customer) => (
+              <li key={customer.id} className="flex items-center justify-between text-sm">
+                <Link href={`/admin/clientes/${customer.id}`} className="font-medium text-amber-900 hover:underline">
+                  {customer.name}
+                </Link>
+                <span className="font-semibold text-amber-700">{formatBRL(customer.fiadoBalance)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="mb-8 rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
         <h2 className="mb-4 text-sm font-semibold text-stone-700">

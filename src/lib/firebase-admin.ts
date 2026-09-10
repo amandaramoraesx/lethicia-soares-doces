@@ -1,6 +1,8 @@
 import { cert, getApps, initializeApp, type App } from "firebase-admin/app";
 import { getAuth, type Auth } from "firebase-admin/auth";
 import { getFirestore, type Firestore } from "firebase-admin/firestore";
+import { getStorage } from "firebase-admin/storage";
+import type { Bucket } from "@google-cloud/storage";
 
 let cachedApp: App | null = null;
 
@@ -23,6 +25,7 @@ function getAdminApp(): App {
 
   cachedApp = initializeApp({
     credential: cert({ projectId, clientEmail, privateKey }),
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   });
   return cachedApp;
 }
@@ -42,3 +45,4 @@ function lazyProxy<T extends object>(getInstance: () => T): T {
 // o primeiro uso real em tempo de requisição.
 export const adminAuth: Auth = lazyProxy(() => getAuth(getAdminApp()));
 export const adminDb: Firestore = lazyProxy(() => getFirestore(getAdminApp()));
+export const adminBucket: Bucket = lazyProxy(() => getStorage(getAdminApp()).bucket());

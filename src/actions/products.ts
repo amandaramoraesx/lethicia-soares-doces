@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createProduct, updateProduct, deleteProduct } from "@/lib/db/products";
+import { uploadProductImage } from "@/lib/upload-image";
 
 const recipeItemSchema = z.object({
   ingredientId: z.string().min(1),
@@ -33,11 +34,18 @@ function parseRecipe(raw: string | null): unknown[] {
 
 export async function saveProductAction(formData: FormData) {
   const id = formData.get("id")?.toString();
+
+  let imageUrl = formData.get("existingImageUrl")?.toString() ?? "";
+  const imageFile = formData.get("imageFile");
+  if (imageFile instanceof File && imageFile.size > 0) {
+    imageUrl = await uploadProductImage(imageFile);
+  }
+
   const parsed = productSchema.parse({
     name: formData.get("name"),
     description: formData.get("description") || "",
     price: formData.get("price"),
-    imageUrl: formData.get("imageUrl") || "",
+    imageUrl,
     active: formData.get("active") === "on",
     featured: formData.get("featured") === "on",
     stockControl: formData.get("stockControl") === "on",

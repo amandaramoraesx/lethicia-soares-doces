@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { updateOrderStatus, createOrder } from "@/lib/db/orders";
+import { updateOrderStatus, createOrder, acceptOrder, rejectOrder } from "@/lib/db/orders";
 import { getProductsByIds } from "@/lib/db/products";
 import type { OrderStatus } from "@/lib/types";
 
@@ -12,6 +12,25 @@ export async function updateOrderStatusAction(formData: FormData) {
   const status = formData.get("status")?.toString() as OrderStatus | undefined;
   if (!id || !status) return;
   await updateOrderStatus(id, status);
+  revalidatePath("/admin/pedidos");
+  revalidatePath("/admin");
+}
+
+export async function acceptOrderAction(formData: FormData) {
+  const id = formData.get("id")?.toString();
+  if (!id) return;
+  const feeRaw = formData.get("deliveryFee")?.toString();
+  const deliveryFee = feeRaw ? Number(feeRaw) : null;
+  await acceptOrder(id, deliveryFee !== null && !Number.isNaN(deliveryFee) ? deliveryFee : null);
+  revalidatePath("/admin/pedidos");
+  revalidatePath("/admin");
+}
+
+export async function rejectOrderAction(formData: FormData) {
+  const id = formData.get("id")?.toString();
+  if (!id) return;
+  const reason = formData.get("reason")?.toString() ?? "";
+  await rejectOrder(id, reason);
   revalidatePath("/admin/pedidos");
   revalidatePath("/admin");
 }

@@ -51,7 +51,7 @@ export default async function ConfiguracoesPage() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-stone-600">Taxa de entrega (R$)</label>
+              <label className="mb-1 block text-xs font-medium text-stone-600">Taxa de entrega padrão (R$)</label>
               <input
                 type="number"
                 step="0.01"
@@ -60,6 +60,9 @@ export default async function ConfiguracoesPage() {
                 defaultValue={settings.deliveryFee}
                 className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
               />
+              <p className="mt-1 text-xs text-stone-400">
+                Valor sugerido ao aceitar um pedido com entrega — você pode ajustar em cada pedido.
+              </p>
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-stone-600">Pedido mínimo (R$)</label>

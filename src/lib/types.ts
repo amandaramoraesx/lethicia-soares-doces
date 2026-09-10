@@ -1,4 +1,4 @@
-export type OrderStatus = "recebido" | "preparo" | "pronto" | "entregue" | "cancelado";
+export type OrderStatus = "aguardando" | "recebido" | "preparo" | "pronto" | "entregue" | "cancelado";
 export type DeliveryType = "retirada" | "entrega";
 export type PaymentMethod = "dinheiro" | "pix" | "cartao" | "fiado";
 export type FinancialEntryType = "entrada" | "saida";
@@ -74,8 +74,10 @@ export interface Order {
   items: OrderItem[];
   subtotal: number;
   deliveryFee: number;
+  deliveryFeePending: boolean;
   total: number;
   source: "cardapio" | "manual";
+  rejectionReason: string | null;
 }
 
 export interface Customer {
@@ -140,6 +142,7 @@ export interface AccountPayable {
 }
 
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
+  aguardando: "Aguardando confirmação",
   recebido: "Recebido",
   preparo: "Em preparo",
   pronto: "Pronto",

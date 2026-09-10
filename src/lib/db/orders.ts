@@ -63,9 +63,49 @@ async function deductStockForItems(items: OrderItem[]): Promise<void> {
   }
 }
 
+async function settleOrderFinancials(order: Order, customerId: string | null): Promise<void> {
+  if (order.paymentMethod === "fiado" && customerId) {
+    const receivableId = await createReceivable({
+      customerId,
+      customerName: order.customerName,
+      orderId: order.id,
+      originalAmount: order.total,
+      paidAmount: 0,
+      status: "aberta",
+      createdAt: new Date().toISOString(),
+    });
+    await createFiadoEntry({
+      customerId,
+      type: "venda",
+      amount: order.total,
+      date: new Date().toISOString(),
+      note: `Pedido #${order.id.slice(0, 6)}`,
+      orderId: order.id,
+      receivableId,
+    });
+    await adjustCustomerFiadoBalance(customerId, order.total);
+  } else {
+    await createFinancialEntry({
+      type: "entrada",
+      categoryId: "vendas",
+      categoryName: order.source === "cardapio" ? "Venda cardápio" : "Venda balcão",
+      description: `Pedido #${order.id.slice(0, 6)}`,
+      amount: order.total,
+      date: new Date().toISOString(),
+      orderId: order.id,
+      customerId,
+    });
+  }
+}
+
 export async function createOrder(input: CreateOrderInput): Promise<string> {
   const subtotal = input.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const total = subtotal + (input.deliveryType === "entrega" ? input.deliveryFee : 0);
+  // Pedidos do cardápio público entram como "aguardando" até a loja aceitar; a taxa de
+  // entrega só é definida nesse momento (deliveryFeePending fica true até lá). Pedidos
+  // manuais (registrados pela própria loja) já chegam confirmados, com a taxa já conhecida.
+  const isManual = input.source === "manual";
+  const deliveryFee = input.deliveryType === "entrega" ? input.deliveryFee : 0;
+  const total = subtotal + deliveryFee;
 
   let customerId: string | null = null;
   if (input.customerPhone) {
@@ -78,7 +118,7 @@ export async function createOrder(input: CreateOrderInput): Promise<string> {
 
   const orderData: Omit<Order, "id"> = {
     createdAt: new Date().toISOString(),
-    status: "recebido",
+    status: isManual ? "recebido" : "aguardando",
     customerId,
     customerName: input.customerName,
     customerPhone: input.customerPhone,
@@ -88,50 +128,59 @@ export async function createOrder(input: CreateOrderInput): Promise<string> {
     notes: input.notes,
     items: input.items,
     subtotal,
-    deliveryFee: input.deliveryType === "entrega" ? input.deliveryFee : 0,
+    deliveryFee,
+    deliveryFeePending: !isManual && input.deliveryType === "entrega",
     total,
     source: input.source,
+    rejectionReason: null,
   };
 
   const ref = collection().doc();
   await ref.set(orderData);
 
-  await deductStockForItems(input.items);
-
-  if (input.paymentMethod === "fiado" && customerId) {
-    const receivableId = await createReceivable({
-      customerId,
-      customerName: input.customerName,
-      orderId: ref.id,
-      originalAmount: total,
-      paidAmount: 0,
-      status: "aberta",
-      createdAt: new Date().toISOString(),
-    });
-    await createFiadoEntry({
-      customerId,
-      type: "venda",
-      amount: total,
-      date: new Date().toISOString(),
-      note: `Pedido #${ref.id.slice(0, 6)}`,
-      orderId: ref.id,
-      receivableId,
-    });
-    await adjustCustomerFiadoBalance(customerId, total);
-  } else {
-    await createFinancialEntry({
-      type: "entrada",
-      categoryId: "vendas",
-      categoryName: input.source === "cardapio" ? "Venda cardápio" : "Venda balcão",
-      description: `Pedido #${ref.id.slice(0, 6)}`,
-      amount: total,
-      date: new Date().toISOString(),
-      orderId: ref.id,
-      customerId,
-    });
+  // Baixa de estoque e lançamento financeiro só acontecem quando o pedido é confirmado
+  // (na criação, para pedidos manuais; em acceptOrder, para pedidos do cardápio).
+  if (isManual) {
+    await deductStockForItems(input.items);
+    await settleOrderFinancials({ ...orderData, id: ref.id }, customerId);
   }
 
   return ref.id;
+}
+
+export async function acceptOrder(id: string, deliveryFee: number | null): Promise<void> {
+  const order = await getOrder(id);
+  if (!order || order.status !== "aguardando") return;
+
+  const finalDeliveryFee = order.deliveryType === "entrega" ? deliveryFee ?? order.deliveryFee : 0;
+  const total = order.subtotal + finalDeliveryFee;
+  const updated: Order = {
+    ...order,
+    status: "recebido",
+    deliveryFee: finalDeliveryFee,
+    deliveryFeePending: false,
+    total,
+  };
+
+  await collection().doc(id).update({
+    status: "recebido",
+    deliveryFee: finalDeliveryFee,
+    deliveryFeePending: false,
+    total,
+  });
+
+  await deductStockForItems(order.items);
+  await settleOrderFinancials(updated, order.customerId);
+}
+
+export async function rejectOrder(id: string, reason: string): Promise<void> {
+  const order = await getOrder(id);
+  if (!order || order.status !== "aguardando") return;
+
+  await collection().doc(id).update({
+    status: "cancelado",
+    rejectionReason: reason || null,
+  });
 }
 
 export async function computeProfitReport(fromISO: string, toISO: string): Promise<ProfitReportResult> {

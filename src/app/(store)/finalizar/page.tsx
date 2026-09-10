@@ -17,11 +17,5 @@ export default async function FinalizarPage() {
     );
   }
 
-  return (
-    <CheckoutForm
-      whatsapp={settings.whatsapp}
-      deliveryFee={settings.deliveryFee}
-      minOrder={settings.minOrder}
-    />
-  );
+  return <CheckoutForm minOrder={settings.minOrder} />;
 }

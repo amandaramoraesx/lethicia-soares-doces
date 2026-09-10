@@ -1,5 +1,6 @@
 import { getApps, initializeApp, type FirebaseOptions } from "firebase/app";
 import { getAuth, type Auth } from "firebase/auth";
+import { getFirestore, type Firestore } from "firebase/firestore";
 
 const firebaseConfig: FirebaseOptions = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -11,12 +12,22 @@ const firebaseConfig: FirebaseOptions = {
 };
 
 let cachedAuth: Auth | null = null;
+let cachedDb: Firestore | null = null;
+
+function getClientApp() {
+  return getApps().length > 0 ? getApps()[0]! : initializeApp(firebaseConfig);
+}
 
 // Inicialização preguiçosa: evita chamar o SDK do Firebase (e falhar com
 // chaves ausentes) durante a renderização no servidor ou o build.
 export function getClientAuth(): Auth {
   if (cachedAuth) return cachedAuth;
-  const app = getApps().length > 0 ? getApps()[0]! : initializeApp(firebaseConfig);
-  cachedAuth = getAuth(app);
+  cachedAuth = getAuth(getClientApp());
   return cachedAuth;
+}
+
+export function getClientDb(): Firestore {
+  if (cachedDb) return cachedDb;
+  cachedDb = getFirestore(getClientApp());
+  return cachedDb;
 }

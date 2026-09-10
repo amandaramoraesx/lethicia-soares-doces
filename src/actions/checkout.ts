@@ -62,7 +62,8 @@ export async function createCheckoutOrderAction(
     paymentMethod: data.paymentMethod,
     notes: data.notes,
     items: data.items,
-    deliveryFee: settings.deliveryFee,
+    // A taxa de entrega é definida pela loja quando ela aceita o pedido — ver acceptOrder.
+    deliveryFee: 0,
     source: "cardapio",
   });
 
