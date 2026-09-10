@@ -1,6 +1,6 @@
 import { listOrders } from "@/lib/db/orders";
 import { getStoreSettings, startOfTodayBrazilISO } from "@/lib/db/settings";
-import { ORDER_STATUS_LABELS } from "@/lib/types";
+import { getOrderStatusLabel } from "@/lib/types";
 import StoreStatusBadge from "@/components/admin/store-status-badge";
 
 function formatBRL(value: number): string {
@@ -80,7 +80,7 @@ export default async function AdminDashboardPage() {
               {orders.slice(0, 6).map((order) => (
                 <li key={order.id} className="flex justify-between text-sm">
                   <span className="text-stone-700">
-                    {order.customerName || "Cliente"} — {ORDER_STATUS_LABELS[order.status]}
+                    {order.customerName || "Cliente"} — {getOrderStatusLabel(order.status, order.deliveryType)}
                   </span>
                   <span className="font-medium text-stone-500">{formatBRL(order.total)}</span>
                 </li>

@@ -4,21 +4,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { doc, onSnapshot } from "firebase/firestore";
 import { getClientDb } from "@/lib/firebase-client";
-import type { Order, OrderStatus } from "@/lib/types";
+import { getOrderStatusLabel, type Order, type OrderStatus } from "@/lib/types";
 
 function formatBRL(value: number): string {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
 const STEPS: OrderStatus[] = ["recebido", "preparo", "saiu_entrega", "entregue"];
-const STEP_LABELS: Record<OrderStatus, string> = {
-  aguardando: "Aguardando",
-  recebido: "Recebido",
-  preparo: "Em preparo",
-  saiu_entrega: "Saiu para entrega",
-  entregue: "Entregue",
-  cancelado: "Cancelado",
-};
 
 export default function OrderTracker({
   orderId,
@@ -98,7 +90,7 @@ export default function OrderTracker({
                     {i + 1}
                   </div>
                   <p className={`mt-1 text-center text-[10px] ${reached ? "text-pink-deep" : "text-stone-400"}`}>
-                    {STEP_LABELS[step]}
+                    {getOrderStatusLabel(step, order.deliveryType)}
                   </p>
                 </div>
               );

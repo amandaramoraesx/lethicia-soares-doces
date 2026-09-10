@@ -214,6 +214,17 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   cancelado: "Cancelado",
 };
 
+// Pedido de retirada não "sai para entrega" nem é "entregue" — usa o
+// equivalente de balcão. O status salvo no banco continua o mesmo
+// (saiu_entrega/entregue), só o texto exibido muda conforme o tipo do pedido.
+export function getOrderStatusLabel(status: OrderStatus, deliveryType: DeliveryType): string {
+  if (deliveryType === "retirada") {
+    if (status === "saiu_entrega") return "Pronto para retirada";
+    if (status === "entregue") return "Retirado";
+  }
+  return ORDER_STATUS_LABELS[status];
+}
+
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   dinheiro: "Dinheiro",
   pix: "Pix",

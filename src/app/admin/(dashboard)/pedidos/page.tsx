@@ -8,6 +8,7 @@ import { waLink, buildOrderConfirmationMessage } from "@/lib/whatsapp";
 import {
   ORDER_STATUS_LABELS,
   PAYMENT_METHOD_LABELS,
+  getOrderStatusLabel,
   type Order,
   type OrderStatus,
 } from "@/lib/types";
@@ -17,6 +18,13 @@ const NEXT_STATUS: Partial<Record<OrderStatus, OrderStatus>> = {
   recebido: "preparo",
   preparo: "saiu_entrega",
   saiu_entrega: "entregue",
+};
+// A coluna do kanban agrupa pedidos de entrega e retirada juntos, então o
+// título cobre os dois termos — o texto por pedido já vem certo (ver
+// getOrderStatusLabel).
+const COLUMN_LABELS: Partial<Record<OrderStatus, string>> = {
+  saiu_entrega: "Saiu para entrega / Pronto p/ retirada",
+  entregue: "Entregue / Retirado",
 };
 
 function formatBRL(value: number): string {
@@ -126,7 +134,7 @@ function OrderCard({ order, storeAddress }: { order: Order; storeAddress: string
                 type="submit"
                 className="whitespace-nowrap rounded-lg bg-pink-500 px-2.5 py-1 text-[11px] font-medium text-white hover:bg-pink-600"
               >
-                → {ORDER_STATUS_LABELS[next]}
+                → {getOrderStatusLabel(next, order.deliveryType)}
               </button>
             </form>
           )}
@@ -186,7 +194,7 @@ export default async function PedidosPage() {
           return (
             <Collapsible
               key={status}
-              titulo={ORDER_STATUS_LABELS[status]}
+              titulo={COLUMN_LABELS[status] ?? ORDER_STATUS_LABELS[status]}
               resumo={`${columnOrders.length} pedido${columnOrders.length === 1 ? "" : "s"}`}
               defaultAberto={status === "recebido" || status === "preparo" || status === "saiu_entrega"}
             >

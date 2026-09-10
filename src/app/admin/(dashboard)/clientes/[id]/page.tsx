@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { getCustomer, listOrdersByCustomer, listFiadoEntries } from "@/lib/db/customers";
 import { listCustomOrdersByCustomer } from "@/lib/db/custom-orders";
 import { registerFiadoPaymentAction } from "@/actions/customers";
-import { ORDER_STATUS_LABELS } from "@/lib/types";
+import { getOrderStatusLabel } from "@/lib/types";
 import { waLink, SITE_URL } from "@/lib/whatsapp";
 import Collapsible from "@/components/admin/collapsible";
 
@@ -250,7 +250,7 @@ export default async function ClienteDetalhePage({
                     <span className="text-stone-700">{formatDate(order.createdAt)}</span>
                     <span className="font-medium text-stone-600">{formatBRL(order.total)}</span>
                   </div>
-                  <p className="text-xs text-stone-400">{ORDER_STATUS_LABELS[order.status]}</p>
+                  <p className="text-xs text-stone-400">{getOrderStatusLabel(order.status, order.deliveryType)}</p>
                 </li>
               ))}
             </ul>
