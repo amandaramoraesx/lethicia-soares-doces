@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
 import { saveLastOrderId } from "@/lib/order-tracking";
@@ -70,6 +71,9 @@ export default function CheckoutForm({ minOrder }: { minOrder: number }) {
 
   return (
     <div className="mx-auto max-w-md px-4 py-6">
+      <Link href="/" className="mb-3 inline-flex items-center gap-1 text-xs font-medium text-stone-400 hover:text-pink-deep">
+        ← Voltar ao cardápio
+      </Link>
       <h1 className="mb-4 font-script text-3xl text-pink-deep">Finalizar pedido 💗</h1>
 
       <ul className="mb-4 space-y-1 rounded-xl bg-white p-4 text-sm shadow-sm ring-1 ring-pink/30">

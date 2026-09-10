@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getStoreSettings, isStoreOpenNow } from "@/lib/db/settings";
 import CheckoutForm from "@/components/store/checkout-form";
 
@@ -13,6 +14,9 @@ export default async function FinalizarPage() {
         <p className="mt-2 text-sm text-stone-500">
           No momento não estamos recebendo pedidos. Volte durante o horário de funcionamento!
         </p>
+        <Link href="/" className="mt-4 inline-block text-sm font-medium text-pink-deep hover:underline">
+          ← Voltar ao cardápio
+        </Link>
       </div>
     );
   }

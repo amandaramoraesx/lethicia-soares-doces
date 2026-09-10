@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { listCustomers } from "@/lib/db/customers";
-import { saveCustomerAction, deleteCustomerAction } from "@/actions/customers";
+import { saveCustomerAction } from "@/actions/customers";
 import FormToggle from "@/components/admin/form-toggle";
+import CustomerList from "@/components/admin/customer-list";
 
 function formatBRL(value: number): string {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -140,38 +141,7 @@ export default async function ClientesPage({
         </div>
       </FormToggle>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        {customers.map((customer) => (
-          <div key={customer.id} className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-stone-200">
-            <Link href={`/admin/clientes/${customer.id}`} className="block truncate font-medium text-pink-700 hover:underline">
-              {customer.name}
-            </Link>
-            <p className="mt-1 truncate text-sm text-stone-500">{customer.phone}</p>
-            {customer.fiadoBalance > 0 && (
-              <p className="mt-1 text-xs font-medium text-amber-600">Fiado: {formatBRL(customer.fiadoBalance)}</p>
-            )}
-            <div className="mt-3 flex items-center justify-between text-xs">
-              <a href={`/admin/clientes?edit=${customer.id}`} className="font-medium text-pink-600 hover:text-pink-700">
-                Editar
-              </a>
-              <form action={deleteCustomerAction}>
-                <input type="hidden" name="id" value={customer.id} />
-                <button
-                  type="submit"
-                  aria-label={`Excluir ${customer.name}`}
-                  title="Excluir"
-                  className="flex h-7 w-7 items-center justify-center rounded-full text-red-500 hover:bg-red-50 hover:text-red-700"
-                >
-                  🗑️
-                </button>
-              </form>
-            </div>
-          </div>
-        ))}
-        {customers.length === 0 && (
-          <p className="col-span-full py-8 text-center text-sm text-stone-400">Nenhum cliente cadastrado.</p>
-        )}
-      </div>
+      <CustomerList customers={customers} />
     </div>
   );
 }

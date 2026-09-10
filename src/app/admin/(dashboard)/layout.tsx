@@ -3,6 +3,7 @@ import Image from "next/image";
 import { requireAdmin } from "@/lib/session";
 import { logout } from "@/actions/auth";
 import NewOrderWatcher from "@/components/admin/new-order-watcher";
+import BackButton from "@/components/admin/back-button";
 import { DesktopSidebarNav, MobileMenuButton } from "@/components/admin/sidebar-nav";
 
 export const dynamic = "force-dynamic";
@@ -48,7 +49,10 @@ export default async function AdminLayout({ children }: { children: ReactNode })
             </button>
           </form>
         </header>
-        <main className="mx-auto max-w-6xl p-4 md:p-8">{children}</main>
+        <main className="mx-auto max-w-6xl p-4 md:p-8">
+          <BackButton />
+          {children}
+        </main>
       </div>
       <NewOrderWatcher />
     </div>
