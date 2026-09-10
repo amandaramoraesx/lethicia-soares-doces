@@ -28,8 +28,8 @@ export default function ProductCard({ product }: { product: Product }) {
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-pink/30 transition hover:shadow-md">
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-cream-dark">
+    <div className="rounded-2xl bg-white p-3 shadow-sm ring-1 ring-pink/20 transition hover:shadow-md">
+      <div className="relative h-32 w-full overflow-hidden rounded-xl bg-cream-dark">
         {photos.length > 0 ? (
           <div
             className="flex h-full transition-transform duration-300 ease-out"
@@ -40,8 +40,8 @@ export default function ProductCard({ product }: { product: Product }) {
                 <Image
                   src={url}
                   alt={product.name}
-                  width={400}
-                  height={300}
+                  width={300}
+                  height={200}
                   className="h-full w-full object-cover"
                   unoptimized
                 />
@@ -49,12 +49,12 @@ export default function ProductCard({ product }: { product: Product }) {
             ))}
           </div>
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-4xl">🍰</div>
+          <div className="flex h-full w-full items-center justify-center text-3xl">🍰</div>
         )}
 
         {outOfStock && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-            <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-stone-700">
+            <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-stone-700">
               Esgotado
             </span>
           </div>
@@ -65,23 +65,23 @@ export default function ProductCard({ product }: { product: Product }) {
             <button
               onClick={prevSlide}
               aria-label="Foto anterior"
-              className="absolute left-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-sm shadow"
+              className="absolute left-1.5 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-xs shadow"
             >
               ‹
             </button>
             <button
               onClick={nextSlide}
               aria-label="Próxima foto"
-              className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-sm shadow"
+              className="absolute right-1.5 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-xs shadow"
             >
               ›
             </button>
-            <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-1">
+            <div className="absolute bottom-1.5 left-1/2 flex -translate-x-1/2 gap-1">
               {photos.map((_, i) => (
                 <span
                   key={i}
-                  className={`h-1.5 rounded-full bg-white transition-all ${
-                    i === slide ? "w-3.5 opacity-100" : "w-1.5 opacity-50"
+                  className={`h-1 rounded-full bg-white transition-all ${
+                    i === slide ? "w-3 opacity-100" : "w-1 opacity-50"
                   }`}
                 />
               ))}
@@ -90,19 +90,19 @@ export default function ProductCard({ product }: { product: Product }) {
         )}
       </div>
 
-      <div className="p-3.5">
+      <div className="pt-3">
         <p className="font-script text-lg leading-tight text-pink-deep">{product.name}</p>
         {product.description && (
           <p className="mt-0.5 line-clamp-2 text-xs text-stone-500">{product.description}</p>
         )}
-        <div className="mt-2.5 flex items-center justify-between">
+        <div className="mt-2 flex items-center justify-between">
           <span className="text-base font-semibold text-stone-700">{formatBRL(product.price)}</span>
           <button
             onClick={() =>
               addItem({ productId: product.id, name: product.name, price: product.price })
             }
             disabled={outOfStock}
-            className="flex h-9 w-9 items-center justify-center rounded-xl bg-pink-deep text-lg font-semibold text-white transition hover:opacity-90 disabled:opacity-40"
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-pink-deep text-base font-semibold text-white transition hover:opacity-90 disabled:opacity-40"
           >
             +
           </button>

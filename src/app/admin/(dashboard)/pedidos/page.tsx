@@ -158,7 +158,7 @@ export default async function PedidosPage() {
           <h2 className="mb-3 text-sm font-semibold text-amber-800">
             🔔 Aguardando confirmação ({pendingOrders.length})
           </h2>
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <div className="space-y-3">
             {pendingOrders.map((order) => (
               <PendingOrderCard key={order.id} order={order} suggestedFee={settings.deliveryFee} />
             ))}
