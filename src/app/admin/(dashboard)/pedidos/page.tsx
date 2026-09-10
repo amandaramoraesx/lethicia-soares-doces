@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { listOrders } from "@/lib/db/orders";
 import { getStoreSettings } from "@/lib/db/settings";
-import { updateOrderStatusAction, rejectOrderAction } from "@/actions/orders";
+import { updateOrderStatusAction, rejectOrderAction, deleteOrderAction } from "@/actions/orders";
 import Collapsible from "@/components/admin/collapsible";
 import AcceptOrderForm from "@/components/admin/accept-order-form";
 import { waLink, buildOrderConfirmationMessage } from "@/lib/whatsapp";
@@ -52,9 +52,22 @@ function PendingOrderCard({
 }) {
   return (
     <div className="mb-3 rounded-xl bg-white p-4 shadow-sm ring-2 ring-amber-300">
-      <div className="mb-1 flex items-center justify-between">
+      <div className="mb-1 flex items-center justify-between gap-2">
         <p className="text-sm font-semibold text-stone-800">{order.customerName || "Cliente"}</p>
-        <span className="text-xs text-stone-400">{formatTime(order.createdAt)}</span>
+        <div className="flex shrink-0 items-center gap-2">
+          <span className="text-xs text-stone-400">{formatTime(order.createdAt)}</span>
+          <form action={deleteOrderAction}>
+            <input type="hidden" name="id" value={order.id} />
+            <button
+              type="submit"
+              aria-label="Excluir pedido"
+              title="Excluir"
+              className="flex h-6 w-6 items-center justify-center rounded-full text-red-400 hover:bg-red-50 hover:text-red-600"
+            >
+              🗑️
+            </button>
+          </form>
+        </div>
       </div>
       <p className="mb-1 text-xs text-stone-500">
         {order.deliveryType === "entrega" ? `Entrega — ${order.address}` : "Retirada"} ·{" "}
@@ -147,6 +160,17 @@ function OrderCard({ order, storeAddress }: { order: Order; storeAddress: string
               </button>
             </form>
           )}
+          <form action={deleteOrderAction} className="ml-1">
+            <input type="hidden" name="id" value={order.id} />
+            <button
+              type="submit"
+              aria-label="Excluir pedido"
+              title="Excluir"
+              className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-stone-400 hover:bg-red-50 hover:text-red-600"
+            >
+              🗑️
+            </button>
+          </form>
         </div>
       </div>
       {order.notes && <p className="mt-0.5 text-[11px] italic text-stone-400">&quot;{order.notes}&quot;</p>}

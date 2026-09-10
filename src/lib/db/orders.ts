@@ -24,6 +24,13 @@ export async function updateOrderStatus(id: string, status: OrderStatus): Promis
   await collection().doc(id).update({ status });
 }
 
+// Exclusão de verdade (diferente de "Cancelar", que só muda o status) —
+// pensada pra apagar pedidos de teste. Não reverte estoque nem lançamentos
+// financeiros já gerados quando o pedido foi aceito.
+export async function deleteOrder(id: string): Promise<void> {
+  await collection().doc(id).delete();
+}
+
 export interface CreateOrderInput {
   customerName: string;
   customerPhone: string;

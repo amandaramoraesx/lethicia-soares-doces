@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { updateOrderStatus, createOrder, acceptOrder, rejectOrder } from "@/lib/db/orders";
+import { updateOrderStatus, createOrder, acceptOrder, rejectOrder, deleteOrder } from "@/lib/db/orders";
 import { getProductsByIds } from "@/lib/db/products";
 import type { OrderStatus } from "@/lib/types";
 
@@ -14,6 +14,15 @@ export async function updateOrderStatusAction(formData: FormData) {
   await updateOrderStatus(id, status);
   revalidatePath("/admin/pedidos");
   revalidatePath("/admin");
+}
+
+export async function deleteOrderAction(formData: FormData) {
+  const id = formData.get("id")?.toString();
+  if (!id) return;
+  await deleteOrder(id);
+  revalidatePath("/admin/pedidos");
+  revalidatePath("/admin");
+  revalidatePath("/admin/clientes");
 }
 
 export async function acceptOrderAction(formData: FormData) {
