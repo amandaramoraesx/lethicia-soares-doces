@@ -3,6 +3,7 @@ import { listCustomOrders } from "@/lib/db/custom-orders";
 import { listCustomers } from "@/lib/db/customers";
 import { saveCustomOrderAction, markCustomOrderStatusAction, deleteCustomOrderAction } from "@/actions/custom-orders";
 import FormToggle from "@/components/admin/form-toggle";
+import { waLink } from "@/lib/whatsapp";
 import type { CustomOrder } from "@/lib/types";
 
 function formatDate(isoDate: string): string {
@@ -22,8 +23,15 @@ function countdownLabel(isoDate: string): { text: string; className: string } {
   return { text: `Faltam ${diffDays}d`, className: "bg-stone-100 text-stone-500" };
 }
 
-function OrderRow({ order }: { order: CustomOrder }) {
+function OrderRow({ order, customerPhone }: { order: CustomOrder; customerPhone: string | null }) {
   const countdown = countdownLabel(order.deliveryDate);
+  const whatsappLink = customerPhone
+    ? waLink(
+        customerPhone,
+        `Oi ${order.customerName}! Sobre sua encomenda de ${order.doceName} (${order.quantity}${order.unit}) para ${formatDate(order.deliveryDate)} 🎂`
+      )
+    : null;
+
   return (
     <div className="flex flex-wrap items-center gap-3 border-b border-stone-100 px-4 py-4 last:border-0">
       <div className="min-w-0 flex-1">
@@ -61,6 +69,17 @@ function OrderRow({ order }: { order: CustomOrder }) {
       )}
 
       <div className="flex shrink-0 items-center gap-3 text-xs">
+        {whatsappLink && (
+          <a
+            href={whatsappLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Falar no WhatsApp"
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-[#25D366] text-sm text-white hover:opacity-90"
+          >
+            💬
+          </a>
+        )}
         {order.status === "pendente" && (
           <form action={markCustomOrderStatusAction}>
             <input type="hidden" name="id" value={order.id} />
@@ -92,6 +111,7 @@ export default async function EncomendasPage({
   const { edit } = await searchParams;
   const [orders, customers] = await Promise.all([listCustomOrders(), listCustomers()]);
   const editing = edit ? orders.find((o) => o.id === edit) : null;
+  const phoneByCustomerId = new Map(customers.map((c) => [c.id, c.phone]));
 
   const pendentes = orders.filter((o) => o.status === "pendente");
   const outras = orders.filter((o) => o.status !== "pendente");
@@ -199,7 +219,7 @@ export default async function EncomendasPage({
 
       <div className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-stone-200">
         {pendentes.map((order) => (
-          <OrderRow key={order.id} order={order} />
+          <OrderRow key={order.id} order={order} customerPhone={order.customerId ? phoneByCustomerId.get(order.customerId) ?? null : null} />
         ))}
         {pendentes.length === 0 && (
           <p className="px-4 py-6 text-center text-sm text-stone-400">Nenhuma encomenda pendente.</p>
@@ -209,7 +229,7 @@ export default async function EncomendasPage({
       {outras.length > 0 && (
         <div className="mt-4 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-stone-200">
           {outras.map((order) => (
-            <OrderRow key={order.id} order={order} />
+            <OrderRow key={order.id} order={order} customerPhone={order.customerId ? phoneByCustomerId.get(order.customerId) ?? null : null} />
           ))}
         </div>
       )}
