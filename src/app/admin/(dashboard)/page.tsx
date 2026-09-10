@@ -32,6 +32,10 @@ export default async function AdminDashboardPage() {
     (o) => o.status === "recebido" || o.status === "preparo" || o.status === "saiu_entrega"
   );
 
+  // Pedidos cancelados/recusados não aparecem aqui — eles ficam guardados na
+  // aba "Cancelados" de Pedidos, de onde podem ser excluídos de vez.
+  const recentOrders = orders.filter((o) => o.status !== "cancelado");
+
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
@@ -73,11 +77,11 @@ export default async function AdminDashboardPage() {
 
         <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
           <h2 className="mb-3 text-sm font-semibold text-stone-700">Últimos pedidos</h2>
-          {orders.length === 0 ? (
+          {recentOrders.length === 0 ? (
             <p className="text-sm text-stone-400">Nenhum pedido ainda.</p>
           ) : (
             <ul className="space-y-2">
-              {orders.slice(0, 6).map((order) => (
+              {recentOrders.slice(0, 6).map((order) => (
                 <li key={order.id} className="flex justify-between text-sm">
                   <span className="text-stone-700">
                     {order.customerName || "Cliente"} — {getOrderStatusLabel(order.status, order.deliveryType)}
