@@ -2,12 +2,8 @@
 
 import { useState } from "react";
 import { acceptOrderAction } from "@/actions/orders";
-import { waLink } from "@/lib/whatsapp";
-import { PAYMENT_METHOD_LABELS, type Order } from "@/lib/types";
-
-function formatBRL(value: number): string {
-  return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
+import { waLink, buildOrderConfirmationMessage } from "@/lib/whatsapp";
+import type { Order } from "@/lib/types";
 
 export default function AcceptOrderForm({
   order,
@@ -36,13 +32,8 @@ export default function AcceptOrderForm({
     await acceptOrderAction(formData);
 
     if (popup) {
-      const itemsText = order.items.map((item) => `${item.quantity}x ${item.name}`).join("\n");
       const total = order.subtotal + (order.deliveryType === "entrega" ? fee : 0);
-      const followUp =
-        order.deliveryType === "entrega"
-          ? "Em breve te enviamos por aqui o código de acompanhamento e os dados da entrega 📦"
-          : `Pode retirar em: ${storeAddress || "vamos combinar o endereço por aqui"} 📍`;
-      const message = `Oi ${order.customerName}! Seu pedido #${order.id.slice(0, 6)} foi confirmado ✅\n\n${itemsText}\n\nTotal: ${formatBRL(total)}\nPagamento: ${PAYMENT_METHOD_LABELS[order.paymentMethod]}\n\n${followUp}`;
+      const message = buildOrderConfirmationMessage(order, total, storeAddress);
       const link = waLink(order.customerPhone, message);
       if (link) {
         popup.location.href = link;

@@ -4,7 +4,7 @@ import { getStoreSettings } from "@/lib/db/settings";
 import { updateOrderStatusAction, rejectOrderAction } from "@/actions/orders";
 import Collapsible from "@/components/admin/collapsible";
 import AcceptOrderForm from "@/components/admin/accept-order-form";
-import { waLink } from "@/lib/whatsapp";
+import { waLink, buildOrderConfirmationMessage } from "@/lib/whatsapp";
 import {
   ORDER_STATUS_LABELS,
   PAYMENT_METHOD_LABELS,
@@ -85,11 +85,11 @@ function PendingOrderCard({
   );
 }
 
-function OrderCard({ order }: { order: Order }) {
+function OrderCard({ order, storeAddress }: { order: Order; storeAddress: string }) {
   const next = NEXT_STATUS[order.status];
   const itemsSummary = order.items.map((item) => `${item.quantity}x ${item.name}`).join(", ");
   const whatsappLink = order.customerPhone
-    ? waLink(order.customerPhone, `Oi ${order.customerName || ""}! `)
+    ? waLink(order.customerPhone, buildOrderConfirmationMessage(order, order.total, storeAddress))
     : null;
   return (
     <div className="border-b border-stone-100 py-2.5 last:border-0">
@@ -112,7 +112,7 @@ function OrderCard({ order }: { order: Order }) {
               href={whatsappLink}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Falar no WhatsApp"
+              aria-label="Enviar confirmação no WhatsApp"
               className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#25D366] text-xs text-white hover:opacity-90"
             >
               💬
@@ -191,7 +191,7 @@ export default async function PedidosPage() {
               defaultAberto={status === "recebido" || status === "preparo" || status === "saiu_entrega"}
             >
               {columnOrders.map((order) => (
-                <OrderCard key={order.id} order={order} />
+                <OrderCard key={order.id} order={order} storeAddress={settings.address} />
               ))}
               {columnOrders.length === 0 && (
                 <p className="py-2 text-center text-xs text-stone-400">Nenhum pedido.</p>
