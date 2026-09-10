@@ -1,7 +1,7 @@
 import { listOrders } from "@/lib/db/orders";
 import { getStoreSettings, startOfTodayBrazilISO } from "@/lib/db/settings";
 import { getOrderStatusLabel } from "@/lib/types";
-import StoreStatusBadge from "@/components/admin/store-status-badge";
+import StoreOpenControl from "@/components/admin/store-open-control";
 
 function formatBRL(value: number): string {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -36,7 +36,7 @@ export default async function AdminDashboardPage() {
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold text-stone-800">Dashboard</h1>
-        <StoreStatusBadge settings={settings} />
+        <StoreOpenControl settings={settings} />
       </div>
 
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">

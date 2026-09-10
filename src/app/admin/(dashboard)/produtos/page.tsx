@@ -4,8 +4,7 @@ import { getStoreSettings } from "@/lib/db/settings";
 import { saveProductAction, deleteProductAction, toggleProductActiveAction } from "@/actions/products";
 import ProductPhotosEditor from "@/components/admin/product-photos-editor";
 import FormToggle from "@/components/admin/form-toggle";
-import StoreOpenToggle from "@/components/admin/store-open-toggle";
-import StoreStatusBadge from "@/components/admin/store-status-badge";
+import StoreOpenControl from "@/components/admin/store-open-control";
 
 function formatBRL(value: number): string {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -24,10 +23,7 @@ export default async function ProdutosPage({
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold text-stone-800">Doces</h1>
-        <div className="flex flex-wrap items-center gap-2">
-          <StoreStatusBadge settings={settings} />
-          <StoreOpenToggle manuallyClosed={settings.manuallyClosed} />
-        </div>
+        <StoreOpenControl settings={settings} />
       </div>
 
       {saved === "1" && (
