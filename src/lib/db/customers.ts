@@ -63,7 +63,15 @@ export async function findOrCreateCustomerByPhone(
   );
 
   if (existingDoc) {
-    await existingDoc.ref.update({ name, address: address || existingDoc.data().address || "" });
+    const existing = existingDoc.data() as Customer;
+    // Não sobrescreve o nome já cadastrado com o que a pessoa digitar num
+    // pedido novo (ex: só o primeiro nome) — só preenche se ainda não
+    // houver nome salvo. Pra corrigir o nome, a lojista edita manualmente
+    // em Clientes.
+    await existingDoc.ref.update({
+      name: existing.name || name,
+      address: address || existing.address || "",
+    });
     return existingDoc.id;
   }
   return createCustomer({ name, phone, address });
