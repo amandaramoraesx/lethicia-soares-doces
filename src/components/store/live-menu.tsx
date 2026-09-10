@@ -17,8 +17,10 @@ export default function LiveMenu({
 
   useEffect(() => {
     const unsub = onSnapshot(collection(getClientDb(), "products"), (snap) => {
+      // "active" não esconde o produto — só controla o selo "Indisponível
+      // hoje" (ver ProductCard). O produto só some se for excluído de vez.
       const all = snap.docs.map((d) => normalizeProduct(d.id, d.data()));
-      setProducts(all.filter((p) => p.active));
+      setProducts(all);
     });
     return () => unsub();
   }, []);

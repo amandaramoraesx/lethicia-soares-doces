@@ -9,9 +9,12 @@ export async function listProducts(): Promise<Product[]> {
   return snap.docs.map((doc) => normalizeProduct(doc.id, doc.data()));
 }
 
+// "active" nunca esconde o produto do cardápio público — ele só controla o
+// selo "Indisponível hoje" (igual ao estoque zerado). Um produto só some de
+// verdade se for excluído. Mantido como alias por clareza no código que
+// busca produtos para o cliente ver.
 export async function listAvailableProducts(): Promise<Product[]> {
-  const products = await listProducts();
-  return products.filter((p) => p.active);
+  return listProducts();
 }
 
 export async function getProduct(id: string): Promise<Product | null> {
@@ -54,9 +57,8 @@ export async function decrementProductStock(id: string, quantity: number): Promi
     if (!snap.exists) return;
     const current = (snap.data() as Product).stockQty ?? 0;
     const newQty = Math.max(0, current - quantity);
-    // Não desativa o produto ao zerar o estoque — ele continua visível no
-    // cardápio como "Indisponível hoje" (com opção de encomendar), em vez de
-    // sumir. Só o botão "Esgotar" na listagem desativa de verdade.
+    // Não mexe em "active" ao zerar o estoque — o produto continua visível
+    // no cardápio como "Indisponível hoje" (com opção de encomendar).
     tx.update(ref, { stockQty: newQty });
   });
 }

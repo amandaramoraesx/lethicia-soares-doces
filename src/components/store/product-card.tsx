@@ -13,7 +13,7 @@ function formatBRL(value: number): string {
 export default function ProductCard({ product, whatsapp }: { product: Product; whatsapp: string }) {
   const { addItem } = useCart();
   const [slide, setSlide] = useState(0);
-  const outOfStock = product.stockControl && product.stockQty <= 0;
+  const outOfStock = !product.active || (product.stockControl && product.stockQty <= 0);
   const photos = product.imageUrls;
   const orderLink = outOfStock
     ? waLink(whatsapp, `Oi! O doce "${product.name}" está indisponível hoje, mas gostaria de encomendar 🍰`)
