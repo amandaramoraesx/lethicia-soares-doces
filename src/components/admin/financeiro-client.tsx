@@ -166,7 +166,14 @@ function VisaoHoje({ entries, payables }: { entries: FinancialEntry[]; payables:
                 </form>
                 <form action={deletePayableAction}>
                   <input type="hidden" name="id" value={p.id} />
-                  <button type="submit" className="text-xs text-red-500 hover:text-red-700">excluir</button>
+                  <button
+                    type="submit"
+                    aria-label={`Excluir ${p.description}`}
+                    title="Excluir"
+                    className="ml-1 flex h-7 w-7 items-center justify-center rounded-full text-red-500 hover:bg-red-50 hover:text-red-700"
+                  >
+                    🗑️
+                  </button>
                 </form>
               </div>
             </div>
@@ -187,14 +194,21 @@ function EntryList({ entries, vazio }: { entries: FinancialEntry[]; vazio: strin
             {e.categoryName}
             {e.description ? ` · ${e.description}` : ""}
           </span>
-          <span className="flex shrink-0 items-center gap-2">
+          <span className="flex shrink-0 items-center gap-3">
             <span className={`font-medium ${e.type === "entrada" ? "text-green-600" : "text-red-500"}`}>
               {e.type === "entrada" ? "+" : "-"}
               {formatBRL(e.amount)}
             </span>
             <form action={deleteFinancialEntryAction}>
               <input type="hidden" name="id" value={e.id} />
-              <button type="submit" className="text-xs text-stone-400 hover:text-red-600">✕</button>
+              <button
+                type="submit"
+                aria-label="Excluir lançamento"
+                title="Excluir"
+                className="flex h-7 w-7 items-center justify-center rounded-full text-stone-400 hover:bg-red-50 hover:text-red-600"
+              >
+                🗑️
+              </button>
             </form>
           </span>
         </div>

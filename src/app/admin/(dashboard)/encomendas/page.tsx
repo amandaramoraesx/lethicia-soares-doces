@@ -95,8 +95,13 @@ function OrderRow({ order, customerPhone }: { order: CustomOrder; customerPhone:
           </a>
           <form action={deleteCustomOrderAction}>
             <input type="hidden" name="id" value={order.id} />
-            <button type="submit" className="font-medium text-red-500 hover:text-red-700">
-              Excluir
+            <button
+              type="submit"
+              aria-label={`Excluir encomenda de ${order.customerName}`}
+              title="Excluir"
+              className="ml-1 flex h-7 w-7 items-center justify-center rounded-full text-red-500 hover:bg-red-50 hover:text-red-700"
+            >
+              🗑️
             </button>
           </form>
         </div>

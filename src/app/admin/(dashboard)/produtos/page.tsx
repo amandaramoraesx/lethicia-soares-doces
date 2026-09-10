@@ -145,14 +145,19 @@ export default async function ProdutosPage({
                   {product.active ? "Esgotar" : "Disponibilizar"}
                 </button>
               </form>
-              <div className="flex flex-col items-end gap-1 text-xs">
+              <div className="flex flex-col items-end gap-3 text-xs">
                 <a href={`/admin/produtos?edit=${product.id}`} className="font-medium text-pink-600 hover:text-pink-700">
                   Editar
                 </a>
                 <form action={deleteProductAction}>
                   <input type="hidden" name="id" value={product.id} />
-                  <button type="submit" className="font-medium text-red-500 hover:text-red-700">
-                    Excluir
+                  <button
+                    type="submit"
+                    aria-label={`Excluir ${product.name}`}
+                    title="Excluir"
+                    className="flex h-7 w-7 items-center justify-center rounded-full text-red-500 hover:bg-red-50 hover:text-red-700"
+                  >
+                    🗑️
                   </button>
                 </form>
               </div>

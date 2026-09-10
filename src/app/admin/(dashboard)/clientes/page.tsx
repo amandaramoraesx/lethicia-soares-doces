@@ -131,14 +131,19 @@ export default async function ClientesPage({
             {customer.fiadoBalance > 0 && (
               <p className="mt-1 text-xs font-medium text-amber-600">Fiado: {formatBRL(customer.fiadoBalance)}</p>
             )}
-            <div className="mt-3 flex gap-3 text-xs">
+            <div className="mt-3 flex items-center justify-between text-xs">
               <a href={`/admin/clientes?edit=${customer.id}`} className="font-medium text-pink-600 hover:text-pink-700">
                 Editar
               </a>
               <form action={deleteCustomerAction}>
                 <input type="hidden" name="id" value={customer.id} />
-                <button type="submit" className="font-medium text-red-500 hover:text-red-700">
-                  Excluir
+                <button
+                  type="submit"
+                  aria-label={`Excluir ${customer.name}`}
+                  title="Excluir"
+                  className="flex h-7 w-7 items-center justify-center rounded-full text-red-500 hover:bg-red-50 hover:text-red-700"
+                >
+                  🗑️
                 </button>
               </form>
             </div>
