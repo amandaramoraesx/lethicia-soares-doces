@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { createProduct, updateProduct, deleteProduct } from "@/lib/db/products";
+import { createProduct, updateProduct, deleteProduct, setProductActive } from "@/lib/db/products";
 import { uploadProductImage } from "@/lib/upload-image";
 
 const productSchema = z.object({
@@ -39,22 +39,31 @@ export async function saveProductAction(formData: FormData) {
     stockQty: formData.get("stockQty") || 0,
   });
 
-  // Estoque é o único controle de disponibilidade: zero = esgotado pro cliente.
-  const data = {
+  const base = {
     ...parsed,
-    active: parsed.stockQty > 0,
     featured: false,
     stockControl: true,
     recipe: [],
   };
 
   if (id) {
-    await updateProduct(id, data);
+    // Não mexe em "active" aqui — isso é controlado pelo botão Esgotar/Disponibilizar
+    // na listagem (ou automaticamente quando o estoque zera com uma venda).
+    await updateProduct(id, base);
   } else {
-    await createProduct(data);
+    await createProduct({ ...base, active: parsed.stockQty > 0 });
   }
   revalidatePath("/admin/produtos");
   revalidatePath("/admin/estoque");
+  revalidatePath("/");
+}
+
+export async function toggleProductActiveAction(formData: FormData) {
+  const id = formData.get("id")?.toString();
+  const active = formData.get("active") === "true";
+  if (!id) return;
+  await setProductActive(id, active);
+  revalidatePath("/admin/produtos");
   revalidatePath("/");
 }
 

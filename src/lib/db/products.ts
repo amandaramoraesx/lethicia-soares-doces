@@ -43,6 +43,10 @@ export async function deleteProduct(id: string): Promise<void> {
   await collection().doc(id).delete();
 }
 
+export async function setProductActive(id: string, active: boolean): Promise<void> {
+  await collection().doc(id).update({ active });
+}
+
 export async function decrementProductStock(id: string, quantity: number): Promise<void> {
   await adminDb.runTransaction(async (tx) => {
     const ref = collection().doc(id);

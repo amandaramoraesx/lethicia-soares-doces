@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { listProducts } from "@/lib/db/products";
-import { saveProductAction, deleteProductAction } from "@/actions/products";
+import { saveProductAction, deleteProductAction, toggleProductActiveAction } from "@/actions/products";
 import ProductPhotosEditor from "@/components/admin/product-photos-editor";
 
 function formatBRL(value: number): string {
@@ -119,13 +119,20 @@ export default async function ProdutosPage({
                 {formatBRL(product.price)} · estoque {product.stockQty}
               </p>
             </div>
-            <span
-              className={`shrink-0 rounded-full px-2 py-0.5 text-xs ${
-                product.active ? "bg-green-100 text-green-700" : "bg-stone-100 text-stone-500"
-              }`}
-            >
-              {product.active ? "Ativo" : "Esgotado"}
-            </span>
+            <form action={toggleProductActiveAction} className="shrink-0">
+              <input type="hidden" name="id" value={product.id} />
+              <input type="hidden" name="active" value={(!product.active).toString()} />
+              <button
+                type="submit"
+                className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                  product.active
+                    ? "bg-green-100 text-green-700 hover:bg-red-100 hover:text-red-600"
+                    : "bg-stone-100 text-stone-500 hover:bg-green-100 hover:text-green-700"
+                }`}
+              >
+                {product.active ? "Esgotar" : "Disponibilizar"}
+              </button>
+            </form>
             <div className="flex shrink-0 flex-col items-end gap-1 text-xs">
               <a href={`/admin/produtos?edit=${product.id}`} className="font-medium text-pink-600 hover:text-pink-700">
                 Editar
