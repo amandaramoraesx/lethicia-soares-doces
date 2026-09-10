@@ -181,6 +181,7 @@ function OrderCard({ order, storeAddress }: { order: Order; storeAddress: string
 export default async function PedidosPage() {
   const [orders, settings] = await Promise.all([listOrders(), getStoreSettings()]);
   const pendingOrders = orders.filter((o) => o.status === "aguardando");
+  const canceledOrders = orders.filter((o) => o.status === "cancelado");
 
   return (
     <div>
@@ -231,6 +232,21 @@ export default async function PedidosPage() {
             </Collapsible>
           );
         })}
+
+        {canceledOrders.length > 0 && (
+          <Collapsible
+            titulo="Cancelados"
+            resumo={`${canceledOrders.length} pedido${canceledOrders.length === 1 ? "" : "s"}`}
+            defaultAberto={false}
+          >
+            <p className="mb-2 text-[11px] text-stone-400">
+              Pedidos recusados ou cancelados. Use o 🗑️ para excluir de vez — inclusive pedidos de teste.
+            </p>
+            {canceledOrders.map((order) => (
+              <OrderCard key={order.id} order={order} storeAddress={settings.address} />
+            ))}
+          </Collapsible>
+        )}
       </div>
     </div>
   );
