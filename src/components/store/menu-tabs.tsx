@@ -20,22 +20,29 @@ export default function MenuTabs({
 
   return (
     <div>
-      <div className="mb-6 flex gap-1 rounded-full bg-white p-1 ring-1 ring-pink/30">
+      <div className="mb-8 flex items-start justify-center gap-10 border-b border-pink/30">
         <button
           onClick={() => setTab("pronta")}
-          className={`flex-1 rounded-full px-3 py-2 text-sm font-medium transition ${
-            tab === "pronta" ? "bg-pink-deep text-white" : "text-stone-500 hover:text-pink-deep"
+          className={`relative pb-3 text-sm font-medium transition ${
+            tab === "pronta" ? "text-pink-deep" : "text-stone-400 hover:text-pink-deep"
           }`}
         >
           Pronta entrega
+          {tab === "pronta" && (
+            <span className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-pink-deep" />
+          )}
         </button>
         <button
           onClick={() => setTab("encomenda")}
-          className={`flex-1 rounded-full px-3 py-2 text-sm font-medium transition ${
-            tab === "encomenda" ? "bg-pink-deep text-white" : "text-stone-500 hover:text-pink-deep"
+          className={`relative flex flex-col items-center pb-3 transition ${
+            tab === "encomenda" ? "text-pink-deep" : "text-stone-400 hover:text-pink-deep"
           }`}
         >
-          Encomendas de bolos e docinhos 🎂
+          <span className="text-sm font-medium">Cardápio bolos e docinhos</span>
+          <span className="text-[10px] font-normal tracking-wide text-stone-400">sob encomenda</span>
+          {tab === "encomenda" && (
+            <span className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-pink-deep" />
+          )}
         </button>
       </div>
 

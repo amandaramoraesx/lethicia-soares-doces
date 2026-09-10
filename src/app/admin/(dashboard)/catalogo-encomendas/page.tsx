@@ -19,8 +19,9 @@ export default async function CatalogoEncomendasPage({
       <div className="mb-6">
         <h1 className="text-2xl font-semibold text-stone-800">Catálogo de encomendas</h1>
         <p className="mt-1 text-sm text-stone-500">
-          Bolos e docinhos que aparecem na aba &quot;Encomendas&quot; do cardápio, só para o cliente
-          ver as opções e recheios — sem preço fixo nem carrinho. O pedido é combinado por WhatsApp.
+          Bolos e docinhos que aparecem na aba &quot;Cardápio bolos e docinhos (sob encomenda)&quot;
+          do cardápio, só para o cliente ver as opções e recheios — sem preço fixo nem carrinho. O
+          pedido é combinado por WhatsApp.
         </p>
       </div>
 
