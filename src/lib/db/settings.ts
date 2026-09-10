@@ -39,10 +39,39 @@ export async function setManuallyClosed(closed: boolean): Promise<void> {
   await settingsDoc().set({ manuallyClosed: closed }, { merge: true });
 }
 
+const WEEKDAY_ABBR_TO_INDEX: Record<string, number> = {
+  Sun: 0,
+  Mon: 1,
+  Tue: 2,
+  Wed: 3,
+  Thu: 4,
+  Fri: 5,
+  Sat: 6,
+};
+
+// O servidor (Vercel) roda em UTC, mas os horários de funcionamento são
+// pensados no horário de Brasília — calcular com `new Date().getHours()`
+// direto usaria a hora UTC e deixaria a loja "fechada" nas horas erradas.
+export function getBrazilNow(): { dayOfWeek: number; hours: number; minutes: number } {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Sao_Paulo",
+    weekday: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(new Date());
+
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
+  return {
+    dayOfWeek: WEEKDAY_ABBR_TO_INDEX[get("weekday")] ?? 0,
+    hours: Number(get("hour")),
+    minutes: Number(get("minute")),
+  };
+}
+
 export function isStoreOpenNow(settings: StoreSettings): boolean {
   if (settings.manuallyClosed) return false;
 
-  const now = new Date();
   const dayKeys: Array<keyof StoreSettings["hours"]> = [
     "dom",
     "seg",
@@ -52,12 +81,13 @@ export function isStoreOpenNow(settings: StoreSettings): boolean {
     "sex",
     "sab",
   ];
-  const today = settings.hours[dayKeys[now.getDay()]];
+  const { dayOfWeek, hours, minutes } = getBrazilNow();
+  const today = settings.hours[dayKeys[dayOfWeek]];
   if (!today || today.closed) return false;
 
   const [openH, openM] = today.open.split(":").map(Number);
   const [closeH, closeM] = today.close.split(":").map(Number);
-  const minutesNow = now.getHours() * 60 + now.getMinutes();
+  const minutesNow = hours * 60 + minutes;
   const minutesOpen = openH * 60 + openM;
   const minutesClose = closeH * 60 + closeM;
   return minutesNow >= minutesOpen && minutesNow < minutesClose;

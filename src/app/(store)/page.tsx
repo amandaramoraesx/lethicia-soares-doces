@@ -1,6 +1,6 @@
 import { listAvailableProducts } from "@/lib/db/products";
 import { listActiveOrderCatalogItems } from "@/lib/db/order-catalog";
-import { getStoreSettings, isStoreOpenNow } from "@/lib/db/settings";
+import { getStoreSettings, isStoreOpenNow, getBrazilNow } from "@/lib/db/settings";
 import { WEEKDAYS } from "@/lib/types";
 import { waLink } from "@/lib/whatsapp";
 import MenuTabs from "@/components/store/menu-tabs";
@@ -29,7 +29,7 @@ export default async function CardapioPage() {
   ]);
 
   const isOpen = isStoreOpenNow(settings);
-  const todayKey = WEEKDAYS[(new Date().getDay() + 6) % 7].key;
+  const todayKey = WEEKDAYS[(getBrazilNow().dayOfWeek + 6) % 7].key;
   const todayHours = settings.hours[todayKey];
 
   const whatsappLink = settings.whatsapp
