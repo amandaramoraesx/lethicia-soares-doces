@@ -137,6 +137,22 @@ export interface AccountReceivable {
   createdAt: string;
 }
 
+export type CustomOrderUnit = "un" | "kg";
+export type CustomOrderStatus = "pendente" | "entregue" | "cancelada";
+
+export interface CustomOrder {
+  id: string;
+  customerId: string | null;
+  customerName: string;
+  doceName: string;
+  quantity: number;
+  unit: CustomOrderUnit;
+  deliveryDate: string;
+  notes: string;
+  status: CustomOrderStatus;
+  createdAt: string;
+}
+
 export interface AccountPayable {
   id: string;
   description: string;

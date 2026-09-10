@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getCustomer, listOrdersByCustomer, listFiadoEntries } from "@/lib/db/customers";
+import { listCustomOrdersByCustomer } from "@/lib/db/custom-orders";
 import { registerFiadoPaymentAction } from "@/actions/customers";
 import { ORDER_STATUS_LABELS } from "@/lib/types";
 import { waLink, SITE_URL } from "@/lib/whatsapp";
@@ -21,9 +22,10 @@ export default async function ClienteDetalhePage({
   const customer = await getCustomer(id);
   if (!customer) notFound();
 
-  const [orders, fiadoEntries] = await Promise.all([
+  const [orders, fiadoEntries, customOrders] = await Promise.all([
     listOrdersByCustomer(id),
     listFiadoEntries(id),
+    listCustomOrdersByCustomer(id),
   ]);
 
   const validOrders = orders.filter((o) => o.status !== "cancelado");
@@ -155,6 +157,30 @@ export default async function ClienteDetalhePage({
             )}
           </div>
         </div>
+
+        {customOrders.length > 0 && (
+          <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
+            <h2 className="mb-3 text-sm font-semibold text-stone-700">🎂 Encomendas</h2>
+            <ul className="space-y-2">
+              {customOrders.map((order) => (
+                <li key={order.id} className="border-b border-stone-100 pb-2 text-sm last:border-0">
+                  <div className="flex justify-between">
+                    <span className="text-stone-700">
+                      {order.doceName} — {order.quantity}
+                      {order.unit}
+                    </span>
+                    <span className="font-medium text-stone-600">
+                      {new Date(`${order.deliveryDate}T00:00:00`).toLocaleDateString("pt-BR")}
+                    </span>
+                  </div>
+                  <p className="text-xs text-stone-400">
+                    {order.status === "pendente" ? "Pendente" : order.status === "entregue" ? "Entregue" : "Cancelada"}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
           <h2 className="mb-3 text-sm font-semibold text-stone-700">🏆 Doces mais pedidos</h2>
