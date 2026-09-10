@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
 import { saveLastOrderId } from "@/lib/order-tracking";
 import { createCheckoutOrderAction } from "@/actions/checkout";
-import { PAYMENT_METHOD_LABELS, type PaymentMethod } from "@/lib/types";
+import { CHECKOUT_PAYMENT_METHODS_BY_DELIVERY, PAYMENT_METHOD_LABELS, type PaymentMethod } from "@/lib/types";
 
 function formatBRL(value: number): string {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -17,6 +17,13 @@ export default function CheckoutForm({ minOrder }: { minOrder: number }) {
   const [deliveryType, setDeliveryType] = useState<"retirada" | "entrega">("retirada");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const paymentOptions = CHECKOUT_PAYMENT_METHODS_BY_DELIVERY[deliveryType];
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(paymentOptions[0]);
+
+  function changeDeliveryType(type: "retirada" | "entrega") {
+    setDeliveryType(type);
+    setPaymentMethod(CHECKOUT_PAYMENT_METHODS_BY_DELIVERY[type][0]);
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -91,7 +98,7 @@ export default function CheckoutForm({ minOrder }: { minOrder: number }) {
           <div className="flex gap-2">
             <button
               type="button"
-              onClick={() => setDeliveryType("retirada")}
+              onClick={() => changeDeliveryType("retirada")}
               className={`flex-1 rounded-lg border px-3 py-2 text-sm ${
                 deliveryType === "retirada" ? "border-pink-deep bg-pink text-pink-deep" : "border-stone-300"
               }`}
@@ -100,7 +107,7 @@ export default function CheckoutForm({ minOrder }: { minOrder: number }) {
             </button>
             <button
               type="button"
-              onClick={() => setDeliveryType("entrega")}
+              onClick={() => changeDeliveryType("entrega")}
               className={`flex-1 rounded-lg border px-3 py-2 text-sm ${
                 deliveryType === "entrega" ? "border-pink-deep bg-pink text-pink-deep" : "border-stone-300"
               }`}
@@ -124,10 +131,15 @@ export default function CheckoutForm({ minOrder }: { minOrder: number }) {
 
         <div>
           <label className="mb-1 block text-xs font-medium text-stone-600">Forma de pagamento</label>
-          <select name="paymentMethod" className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm">
-            {Object.entries(PAYMENT_METHOD_LABELS).map(([value, label]) => (
+          <select
+            name="paymentMethod"
+            value={paymentMethod}
+            onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
+            className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
+          >
+            {paymentOptions.map((value) => (
               <option key={value} value={value}>
-                {label}
+                {PAYMENT_METHOD_LABELS[value]}
               </option>
             ))}
           </select>

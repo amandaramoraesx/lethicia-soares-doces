@@ -20,7 +20,13 @@ const STEP_LABELS: Record<OrderStatus, string> = {
   cancelado: "Cancelado",
 };
 
-export default function OrderTracker({ orderId }: { orderId: string }) {
+export default function OrderTracker({
+  orderId,
+  storeAddress,
+}: {
+  orderId: string;
+  storeAddress: string;
+}) {
   const [order, setOrder] = useState<Order | null | undefined>(undefined);
 
   useEffect(() => {
@@ -99,6 +105,24 @@ export default function OrderTracker({ orderId }: { orderId: string }) {
             })}
           </div>
         </div>
+      )}
+
+      {order.status !== "aguardando" && order.status !== "cancelado" && order.deliveryType === "entrega" && (
+        <p className="mb-6 rounded-xl bg-white p-4 text-center text-sm text-stone-600 shadow-sm ring-1 ring-pink/30">
+          📲 Aguarde! Vamos te enviar por aqui no WhatsApp o código de acompanhamento e os dados da
+          sua entrega.
+        </p>
+      )}
+
+      {order.status !== "aguardando" && order.status !== "cancelado" && order.deliveryType === "retirada" && storeAddress && (
+        <a
+          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(storeAddress)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mb-6 block rounded-xl bg-white p-4 text-center text-sm text-stone-600 shadow-sm ring-1 ring-pink/30 transition hover:ring-pink-deep/50"
+        >
+          📍 Retire em: <span className="font-medium text-pink-deep underline">{storeAddress}</span>
+        </a>
       )}
 
       <div className="rounded-xl bg-white p-4 text-sm shadow-sm ring-1 ring-pink/30">

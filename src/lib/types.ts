@@ -1,6 +1,14 @@
 export type OrderStatus = "aguardando" | "recebido" | "preparo" | "saiu_entrega" | "entregue" | "cancelado";
 export type DeliveryType = "retirada" | "entrega";
-export type PaymentMethod = "dinheiro" | "pix" | "cartao" | "fiado";
+export type PaymentMethod =
+  | "dinheiro"
+  | "pix"
+  | "cartao"
+  | "cartao_debito"
+  | "cartao_credito"
+  | "link_cartao"
+  | "informar_depois"
+  | "fiado";
 export type FinancialEntryType = "entrada" | "saida";
 export type FiadoEntryType = "venda" | "pagamento";
 export type StockUnit = "un" | "kg" | "g" | "l" | "ml";
@@ -202,7 +210,16 @@ export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   dinheiro: "Dinheiro",
   pix: "Pix",
   cartao: "Cartão",
+  cartao_debito: "Cartão débito",
+  cartao_credito: "Cartão crédito",
+  link_cartao: "Link de cartão",
+  informar_depois: "Informar depois",
   fiado: "Fiado",
+};
+
+export const CHECKOUT_PAYMENT_METHODS_BY_DELIVERY: Record<DeliveryType, PaymentMethod[]> = {
+  entrega: ["link_cartao", "pix"],
+  retirada: ["cartao_debito", "cartao_credito", "dinheiro", "pix", "informar_depois"],
 };
 
 export const WEEKDAYS: Array<{ key: keyof StoreSettings["hours"]; label: string }> = [

@@ -9,7 +9,16 @@ const checkoutSchema = z.object({
   customerPhone: z.string().min(8, "Informe um telefone válido."),
   deliveryType: z.enum(["retirada", "entrega"]),
   address: z.string().default(""),
-  paymentMethod: z.enum(["dinheiro", "pix", "cartao", "fiado"]),
+  paymentMethod: z.enum([
+    "dinheiro",
+    "pix",
+    "cartao",
+    "cartao_debito",
+    "cartao_credito",
+    "link_cartao",
+    "informar_depois",
+    "fiado",
+  ]),
   notes: z.string().default(""),
   items: z
     .array(

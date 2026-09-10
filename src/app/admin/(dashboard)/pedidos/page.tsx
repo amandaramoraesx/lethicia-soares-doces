@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { listOrders } from "@/lib/db/orders";
 import { getStoreSettings } from "@/lib/db/settings";
-import { updateOrderStatusAction, acceptOrderAction, rejectOrderAction } from "@/actions/orders";
+import { updateOrderStatusAction, rejectOrderAction } from "@/actions/orders";
 import Collapsible from "@/components/admin/collapsible";
+import AcceptOrderForm from "@/components/admin/accept-order-form";
 import {
   ORDER_STATUS_LABELS,
   PAYMENT_METHOD_LABELS,
@@ -25,7 +26,15 @@ function formatTime(iso: string): string {
   return new Date(iso).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 }
 
-function PendingOrderCard({ order, suggestedFee }: { order: Order; suggestedFee: number }) {
+function PendingOrderCard({
+  order,
+  suggestedFee,
+  storeAddress,
+}: {
+  order: Order;
+  suggestedFee: number;
+  storeAddress: string;
+}) {
   return (
     <div className="mb-3 rounded-xl bg-white p-4 shadow-sm ring-2 ring-amber-300">
       <div className="mb-1 flex items-center justify-between">
@@ -49,28 +58,7 @@ function PendingOrderCard({ order, suggestedFee }: { order: Order; suggestedFee:
       </p>
       {order.notes && <p className="mb-3 text-xs italic text-stone-500">&quot;{order.notes}&quot;</p>}
 
-      <form action={acceptOrderAction} className="mb-2 flex flex-wrap items-center gap-2">
-        <input type="hidden" name="id" value={order.id} />
-        {order.deliveryType === "entrega" && (
-          <div className="flex items-center gap-1">
-            <span className="text-xs text-stone-500">Taxa R$</span>
-            <input
-              type="number"
-              step="0.01"
-              min="0"
-              name="deliveryFee"
-              defaultValue={suggestedFee}
-              className="w-20 rounded-lg border border-stone-300 px-2 py-1 text-xs"
-            />
-          </div>
-        )}
-        <button
-          type="submit"
-          className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700"
-        >
-          ✓ Aceitar pedido
-        </button>
-      </form>
+      <AcceptOrderForm order={order} suggestedFee={suggestedFee} storeAddress={storeAddress} />
       <form action={rejectOrderAction} className="flex flex-wrap items-center gap-2">
         <input type="hidden" name="id" value={order.id} />
         <input
@@ -160,7 +148,12 @@ export default async function PedidosPage() {
           </h2>
           <div className="space-y-3">
             {pendingOrders.map((order) => (
-              <PendingOrderCard key={order.id} order={order} suggestedFee={settings.deliveryFee} />
+              <PendingOrderCard
+                key={order.id}
+                order={order}
+                suggestedFee={settings.deliveryFee}
+                storeAddress={settings.address}
+              />
             ))}
           </div>
         </div>

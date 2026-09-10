@@ -40,7 +40,16 @@ const manualOrderSchema = z.object({
   customerPhone: z.string().default(""),
   deliveryType: z.enum(["retirada", "entrega"]),
   address: z.string().default(""),
-  paymentMethod: z.enum(["dinheiro", "pix", "cartao", "fiado"]),
+  paymentMethod: z.enum([
+    "dinheiro",
+    "pix",
+    "cartao",
+    "cartao_debito",
+    "cartao_credito",
+    "link_cartao",
+    "informar_depois",
+    "fiado",
+  ]),
   notes: z.string().default(""),
   deliveryFee: z.coerce.number().min(0).default(0),
 });

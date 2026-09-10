@@ -25,7 +25,19 @@ const entrySchema = z.object({
   description: z.string().default(""),
   amount: z.coerce.number().positive(),
   date: z.string().min(1),
-  paymentMethod: z.enum(["dinheiro", "pix", "cartao", "fiado"]).nullable().default(null),
+  paymentMethod: z
+    .enum([
+      "dinheiro",
+      "pix",
+      "cartao",
+      "cartao_debito",
+      "cartao_credito",
+      "link_cartao",
+      "informar_depois",
+      "fiado",
+    ])
+    .nullable()
+    .default(null),
 });
 
 export async function createFinancialEntryAction(formData: FormData) {
