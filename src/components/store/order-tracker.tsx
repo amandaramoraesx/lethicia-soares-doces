@@ -106,15 +106,21 @@ export default function OrderTracker({
         </p>
       )}
 
-      {order.status !== "aguardando" && order.status !== "cancelado" && order.deliveryType === "retirada" && storeAddress && (
-        <a
-          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(storeAddress)}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mb-6 block rounded-xl bg-white p-4 text-center text-sm text-stone-600 shadow-sm ring-1 ring-pink/30 transition hover:ring-pink-deep/50"
-        >
-          📍 Retire em: <span className="font-medium text-pink-deep underline">{storeAddress}</span>
-        </a>
+      {order.status !== "aguardando" && order.status !== "cancelado" && order.deliveryType === "retirada" && (
+        storeAddress ? (
+          <a
+            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(storeAddress)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mb-6 block rounded-xl bg-white p-4 text-center text-sm text-stone-600 shadow-sm ring-1 ring-pink/30 transition hover:ring-pink-deep/50"
+          >
+            📍 Retire em: <span className="font-medium text-pink-deep underline">{storeAddress}</span>
+          </a>
+        ) : (
+          <p className="mb-6 rounded-xl bg-white p-4 text-center text-sm text-stone-500 shadow-sm ring-1 ring-pink/30">
+            📍 Retire na loja — combinamos o endereço com você pelo WhatsApp.
+          </p>
+        )
       )}
 
       <div className="rounded-xl bg-white p-4 text-sm shadow-sm ring-1 ring-pink/30">
