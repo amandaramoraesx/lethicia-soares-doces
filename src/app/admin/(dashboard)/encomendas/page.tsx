@@ -33,9 +33,9 @@ function OrderRow({ order, customerPhone }: { order: CustomOrder; customerPhone:
     : null;
 
   return (
-    <div className="flex flex-wrap items-center gap-3 border-b border-stone-100 px-4 py-4 last:border-0">
+    <div className="flex flex-col gap-3 border-b border-stone-100 px-4 py-4 last:border-0 sm:flex-row sm:items-center">
       <div className="min-w-0 flex-1">
-        <p className="truncate text-base font-medium text-stone-800">
+        <p className="text-base font-medium break-words text-stone-800">
           {order.doceName} — {order.quantity}
           {order.unit}
         </p>
@@ -52,52 +52,54 @@ function OrderRow({ order, customerPhone }: { order: CustomOrder; customerPhone:
         {order.notes && <p className="mt-0.5 text-xs italic text-stone-400">&quot;{order.notes}&quot;</p>}
       </div>
 
-      {order.status === "pendente" && (
-        <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${countdown.className}`}>
-          {countdown.text}
-        </span>
-      )}
-      {order.status === "entregue" && (
-        <span className="shrink-0 rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-700">
-          Entregue
-        </span>
-      )}
-      {order.status === "cancelada" && (
-        <span className="shrink-0 rounded-full bg-stone-100 px-2.5 py-1 text-xs font-medium text-stone-500">
-          Cancelada
-        </span>
-      )}
-
-      <div className="flex shrink-0 items-center gap-3 text-xs">
-        {whatsappLink && (
-          <a
-            href={whatsappLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Falar no WhatsApp"
-            className="flex h-7 w-7 items-center justify-center rounded-full bg-[#25D366] text-sm text-white hover:opacity-90"
-          >
-            💬
-          </a>
-        )}
+      <div className="flex flex-wrap items-center gap-3">
         {order.status === "pendente" && (
-          <form action={markCustomOrderStatusAction}>
+          <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${countdown.className}`}>
+            {countdown.text}
+          </span>
+        )}
+        {order.status === "entregue" && (
+          <span className="shrink-0 rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-700">
+            Entregue
+          </span>
+        )}
+        {order.status === "cancelada" && (
+          <span className="shrink-0 rounded-full bg-stone-100 px-2.5 py-1 text-xs font-medium text-stone-500">
+            Cancelada
+          </span>
+        )}
+
+        <div className="flex shrink-0 items-center gap-3 text-xs">
+          {whatsappLink && (
+            <a
+              href={whatsappLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Falar no WhatsApp"
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-[#25D366] text-sm text-white hover:opacity-90"
+            >
+              💬
+            </a>
+          )}
+          {order.status === "pendente" && (
+            <form action={markCustomOrderStatusAction}>
+              <input type="hidden" name="id" value={order.id} />
+              <input type="hidden" name="status" value="entregue" />
+              <button type="submit" className="font-medium text-green-600 hover:text-green-700">
+                Entregue
+              </button>
+            </form>
+          )}
+          <a href={`/admin/encomendas?edit=${order.id}`} className="font-medium text-pink-600 hover:text-pink-700">
+            Editar
+          </a>
+          <form action={deleteCustomOrderAction}>
             <input type="hidden" name="id" value={order.id} />
-            <input type="hidden" name="status" value="entregue" />
-            <button type="submit" className="font-medium text-green-600 hover:text-green-700">
-              Entregue
+            <button type="submit" className="font-medium text-red-500 hover:text-red-700">
+              Excluir
             </button>
           </form>
-        )}
-        <a href={`/admin/encomendas?edit=${order.id}`} className="font-medium text-pink-600 hover:text-pink-700">
-          Editar
-        </a>
-        <form action={deleteCustomOrderAction}>
-          <input type="hidden" name="id" value={order.id} />
-          <button type="submit" className="font-medium text-red-500 hover:text-red-700">
-            Excluir
-          </button>
-        </form>
+        </div>
       </div>
     </div>
   );
