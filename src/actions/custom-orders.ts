@@ -8,30 +8,52 @@ import { getCustomer } from "@/lib/db/customers";
 
 const customOrderSchema = z.object({
   customerId: z.string().default(""),
-  doceName: z.string().min(1, "Informe o doce/bolo."),
+  itemType: z.enum(["bolo", "outro"]).default("outro"),
+  doceName: z.string().default(""),
+  recheioBolo1: z.string().default(""),
+  recheioBolo2: z.string().default(""),
+  massaBolo: z.string().default(""),
+  tamanhoBolo: z.string().default(""),
   quantity: z.coerce.number().positive(),
   unit: z.enum(["un", "kg"]),
   deliveryDate: z.string().min(1, "Informe a data."),
   notes: z.string().default(""),
 });
 
+function composeBoloName(fields: {
+  massaBolo: string;
+  recheioBolo1: string;
+  recheioBolo2: string;
+  tamanhoBolo: string;
+}): string {
+  const recheios = [fields.recheioBolo1, fields.recheioBolo2].filter(Boolean).join(" + ");
+  return `Bolo (massa ${fields.massaBolo}) — ${recheios} — Tamanho ${fields.tamanhoBolo}`;
+}
+
 export async function saveCustomOrderAction(formData: FormData) {
   const id = formData.get("id")?.toString();
   const parsed = customOrderSchema.parse({
     customerId: formData.get("customerId") || "",
-    doceName: formData.get("doceName"),
+    itemType: formData.get("itemType") || "outro",
+    doceName: formData.get("doceName") || "",
+    recheioBolo1: formData.get("recheioBolo1") || "",
+    recheioBolo2: formData.get("recheioBolo2") || "",
+    massaBolo: formData.get("massaBolo") || "",
+    tamanhoBolo: formData.get("tamanhoBolo") || "",
     quantity: formData.get("quantity"),
     unit: formData.get("unit"),
     deliveryDate: formData.get("deliveryDate"),
     notes: formData.get("notes") || "",
   });
 
+  const doceName = parsed.itemType === "bolo" ? composeBoloName(parsed) : parsed.doceName;
+
   const customer = parsed.customerId ? await getCustomer(parsed.customerId) : null;
 
   const data = {
     customerId: customer?.id ?? null,
     customerName: customer?.name ?? "",
-    doceName: parsed.doceName,
+    doceName,
     quantity: parsed.quantity,
     unit: parsed.unit,
     deliveryDate: parsed.deliveryDate,
