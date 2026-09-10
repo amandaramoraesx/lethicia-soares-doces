@@ -10,12 +10,12 @@ function formatBRL(value: number): string {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-const STEPS: OrderStatus[] = ["recebido", "preparo", "pronto", "entregue"];
+const STEPS: OrderStatus[] = ["recebido", "preparo", "saiu_entrega", "entregue"];
 const STEP_LABELS: Record<OrderStatus, string> = {
   aguardando: "Aguardando",
   recebido: "Recebido",
   preparo: "Em preparo",
-  pronto: "Pronto",
+  saiu_entrega: "Saiu para entrega",
   entregue: "Entregue",
   cancelado: "Cancelado",
 };

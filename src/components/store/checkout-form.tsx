@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
+import { saveLastOrderId } from "@/lib/order-tracking";
 import { createCheckoutOrderAction } from "@/actions/checkout";
 import { PAYMENT_METHOD_LABELS, type PaymentMethod } from "@/lib/types";
 
@@ -36,12 +37,13 @@ export default function CheckoutForm({ minOrder }: { minOrder: number }) {
     });
     setLoading(false);
 
-    if (result.error) {
-      setError(result.error);
+    if (result.error || !result.orderId) {
+      setError(result.error ?? "Não foi possível criar o pedido.");
       return;
     }
 
     clearCart();
+    saveLastOrderId(result.orderId);
     router.push(`/pedido/${result.orderId}`);
   }
 

@@ -1,4 +1,4 @@
-export type OrderStatus = "aguardando" | "recebido" | "preparo" | "pronto" | "entregue" | "cancelado";
+export type OrderStatus = "aguardando" | "recebido" | "preparo" | "saiu_entrega" | "entregue" | "cancelado";
 export type DeliveryType = "retirada" | "entrega";
 export type PaymentMethod = "dinheiro" | "pix" | "cartao" | "fiado";
 export type FinancialEntryType = "entrada" | "saida";
@@ -170,7 +170,7 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   aguardando: "Aguardando confirmação",
   recebido: "Recebido",
   preparo: "Em preparo",
-  pronto: "Pronto",
+  saiu_entrega: "Saiu para entrega",
   entregue: "Entregue",
   cancelado: "Cancelado",
 };

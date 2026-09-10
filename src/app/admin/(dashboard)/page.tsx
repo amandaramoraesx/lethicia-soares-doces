@@ -32,7 +32,9 @@ export default async function AdminDashboardPage() {
     .sort((a, b) => b.qty - a.qty)
     .slice(0, 5);
 
-  const pendingOrders = orders.filter((o) => o.status === "recebido" || o.status === "preparo");
+  const pendingOrders = orders.filter(
+    (o) => o.status === "recebido" || o.status === "preparo" || o.status === "saiu_entrega"
+  );
 
   return (
     <div>

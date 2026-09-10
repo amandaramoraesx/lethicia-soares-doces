@@ -10,11 +10,11 @@ import {
   type OrderStatus,
 } from "@/lib/types";
 
-const COLUMNS: OrderStatus[] = ["recebido", "preparo", "pronto", "entregue"];
+const COLUMNS: OrderStatus[] = ["recebido", "preparo", "saiu_entrega", "entregue"];
 const NEXT_STATUS: Partial<Record<OrderStatus, OrderStatus>> = {
   recebido: "preparo",
-  preparo: "pronto",
-  pronto: "entregue",
+  preparo: "saiu_entrega",
+  saiu_entrega: "entregue",
 };
 
 function formatBRL(value: number): string {
@@ -174,7 +174,7 @@ export default async function PedidosPage() {
               key={status}
               titulo={ORDER_STATUS_LABELS[status]}
               resumo={`${columnOrders.length} pedido${columnOrders.length === 1 ? "" : "s"}`}
-              defaultAberto={status === "recebido" || status === "preparo"}
+              defaultAberto={status === "recebido" || status === "preparo" || status === "saiu_entrega"}
             >
               {columnOrders.map((order) => (
                 <OrderCard key={order.id} order={order} />

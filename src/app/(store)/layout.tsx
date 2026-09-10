@@ -5,6 +5,7 @@ import { CartProvider } from "@/lib/cart-context";
 import StoreHeader from "@/components/store/header";
 import CartDrawer from "@/components/store/cart-drawer";
 import FloatingWhatsApp from "@/components/store/floating-whatsapp";
+import ActiveOrderButton from "@/components/store/active-order-button";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,7 @@ export default async function StoreLayout({ children }: { children: ReactNode })
       {children}
       <CartDrawer />
       <FloatingWhatsApp whatsapp={settings.whatsapp} />
+      <ActiveOrderButton />
     </CartProvider>
   );
 }
