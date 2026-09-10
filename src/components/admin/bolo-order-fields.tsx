@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 
-// Lista fixa conforme o cardápio impresso de bolos (recheios simples/especiais).
-// Se os sabores do cardápio mudarem, atualize aqui também.
+// Listas fixas conforme o cardápio impresso (bolos e docinhos).
+// Se os sabores ou preços do cardápio mudarem, atualize aqui também.
 const RECHEIOS_SIMPLES = [
   "Brigadeiro",
   "Prestígio",
@@ -29,6 +29,13 @@ const TAMANHOS = [
   { value: "M", label: "M (25 a 30 fatias)" },
   { value: "G", label: "G (35 a 45 fatias)" },
   { value: "GG", label: "GG (45 a 55 fatias)" },
+];
+
+const DOCINHO_GRUPOS = [
+  { label: "R$ 140,00 (100 un)", sabores: ["Brigadeiro tradicional", "Beijinho", "Casadinho", "Leite ninho"] },
+  { label: "R$ 160,00 (100 un)", sabores: ["Churros", "Bicho de pé", "Oreo", "Paçoca"] },
+  { label: "R$ 190,00 (100 un)", sabores: ["Brigadeiro ao leite", "Chocolate branco", "Mesclado", "Prestígio"] },
+  { label: "R$ 210,00 (100 un)", sabores: ["Leite ninho com nutella", "Leite ninho com uva"] },
 ];
 
 function RecheioSelect({
@@ -64,17 +71,19 @@ function RecheioSelect({
   );
 }
 
+type Modo = "bolo" | "docinho" | "outro";
+
 export default function BoloOrderFields({ initialDoceName }: { initialDoceName?: string }) {
-  const [modo, setModo] = useState<"bolo" | "outro">(initialDoceName ? "outro" : "bolo");
+  const [modo, setModo] = useState<Modo>(initialDoceName ? "outro" : "bolo");
 
   return (
     <div>
       <label className="mb-1 block text-xs font-medium text-stone-600">Tipo de item</label>
-      <div className="mb-3 flex gap-2">
+      <div className="mb-3 grid grid-cols-3 gap-2">
         <button
           type="button"
           onClick={() => setModo("bolo")}
-          className={`flex-1 rounded-lg border px-3 py-2 text-sm ${
+          className={`rounded-lg border px-2 py-2 text-sm ${
             modo === "bolo" ? "border-pink-500 bg-pink-50 text-pink-700" : "border-stone-300 text-stone-600"
           }`}
         >
@@ -82,16 +91,25 @@ export default function BoloOrderFields({ initialDoceName }: { initialDoceName?:
         </button>
         <button
           type="button"
+          onClick={() => setModo("docinho")}
+          className={`rounded-lg border px-2 py-2 text-sm ${
+            modo === "docinho" ? "border-pink-500 bg-pink-50 text-pink-700" : "border-stone-300 text-stone-600"
+          }`}
+        >
+          Docinhos
+        </button>
+        <button
+          type="button"
           onClick={() => setModo("outro")}
-          className={`flex-1 rounded-lg border px-3 py-2 text-sm ${
+          className={`rounded-lg border px-2 py-2 text-sm ${
             modo === "outro" ? "border-pink-500 bg-pink-50 text-pink-700" : "border-stone-300 text-stone-600"
           }`}
         >
-          Outro (docinho, personalizado...)
+          Outro
         </button>
       </div>
 
-      {modo === "bolo" ? (
+      {modo === "bolo" && (
         <div className="space-y-3">
           <input type="hidden" name="itemType" value="bolo" />
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -119,7 +137,34 @@ export default function BoloOrderFields({ initialDoceName }: { initialDoceName?:
             </div>
           </div>
         </div>
-      ) : (
+      )}
+
+      {modo === "docinho" && (
+        <div className="space-y-3">
+          <input type="hidden" name="itemType" value="docinho" />
+          <p className="text-xs text-stone-500">Marque todos os sabores que fazem parte dessa encomenda.</p>
+          {DOCINHO_GRUPOS.map((grupo) => (
+            <div key={grupo.label}>
+              <p className="mb-1.5 text-xs font-semibold text-pink-deep">{grupo.label}</p>
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 sm:grid-cols-4">
+                {grupo.sabores.map((sabor) => (
+                  <label key={sabor} className="flex items-center gap-1.5 text-sm text-stone-600">
+                    <input
+                      type="checkbox"
+                      name="docinhoSabor"
+                      value={sabor}
+                      className="h-4 w-4 rounded border-stone-300"
+                    />
+                    {sabor}
+                  </label>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {modo === "outro" && (
         <div>
           <input type="hidden" name="itemType" value="outro" />
           <label className="mb-1 block text-xs font-medium text-stone-600">Doce / bolo</label>
@@ -127,7 +172,7 @@ export default function BoloOrderFields({ initialDoceName }: { initialDoceName?:
             name="doceName"
             required
             defaultValue={initialDoceName ?? ""}
-            placeholder="Ex: Docinhos sortidos"
+            placeholder="Ex: Cento de docinhos sortido"
             className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
           />
         </div>

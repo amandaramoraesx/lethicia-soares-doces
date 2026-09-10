@@ -8,7 +8,7 @@ import { getCustomer } from "@/lib/db/customers";
 
 const customOrderSchema = z.object({
   customerId: z.string().default(""),
-  itemType: z.enum(["bolo", "outro"]).default("outro"),
+  itemType: z.enum(["bolo", "docinho", "outro"]).default("outro"),
   doceName: z.string().default(""),
   recheioBolo1: z.string().default(""),
   recheioBolo2: z.string().default(""),
@@ -30,6 +30,10 @@ function composeBoloName(fields: {
   return `Bolo (massa ${fields.massaBolo}) — ${recheios} — Tamanho ${fields.tamanhoBolo}`;
 }
 
+function composeDocinhoName(sabores: string[]): string {
+  return `Docinhos — ${sabores.join(", ")}`;
+}
+
 export async function saveCustomOrderAction(formData: FormData) {
   const id = formData.get("id")?.toString();
   const parsed = customOrderSchema.parse({
@@ -45,8 +49,14 @@ export async function saveCustomOrderAction(formData: FormData) {
     deliveryDate: formData.get("deliveryDate"),
     notes: formData.get("notes") || "",
   });
+  const docinhoSabores = formData.getAll("docinhoSabor").map((v) => v.toString()).filter(Boolean);
 
-  const doceName = parsed.itemType === "bolo" ? composeBoloName(parsed) : parsed.doceName;
+  const doceName =
+    parsed.itemType === "bolo"
+      ? composeBoloName(parsed)
+      : parsed.itemType === "docinho"
+        ? composeDocinhoName(docinhoSabores)
+        : parsed.doceName;
 
   const customer = parsed.customerId ? await getCustomer(parsed.customerId) : null;
 

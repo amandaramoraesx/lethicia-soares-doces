@@ -44,7 +44,7 @@ export default function AdminLoginPage() {
           />
           <p className="font-script text-3xl leading-tight text-pink-deep">Lethícia Soares</p>
           <p className="mt-1 text-xs font-medium uppercase tracking-wide text-stone-400">
-            Painel da loja
+            Painel administrativo
           </p>
         </div>
 
