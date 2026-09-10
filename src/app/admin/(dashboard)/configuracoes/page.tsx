@@ -2,13 +2,14 @@ import { getStoreSettings } from "@/lib/db/settings";
 import { saveSettingsAction } from "@/actions/settings";
 import { WEEKDAYS } from "@/lib/types";
 import StoreOpenControl from "@/components/admin/store-open-control";
+import ResetTestDataForm from "@/components/admin/reset-test-data-form";
 
 export default async function ConfiguracoesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ saved?: string }>;
+  searchParams: Promise<{ saved?: string; reset?: string; resetError?: string }>;
 }) {
-  const [settings, { saved }] = await Promise.all([getStoreSettings(), searchParams]);
+  const [settings, { saved, reset, resetError }] = await Promise.all([getStoreSettings(), searchParams]);
 
   return (
     <div>
@@ -20,6 +21,18 @@ export default async function ConfiguracoesPage({
       {saved === "1" && (
         <p className="mb-6 rounded-lg bg-green-50 px-4 py-3 text-sm font-medium text-green-700 ring-1 ring-green-200">
           ✓ Configurações salvas com sucesso!
+        </p>
+      )}
+
+      {reset === "1" && (
+        <p className="mb-6 rounded-lg bg-green-50 px-4 py-3 text-sm font-medium text-green-700 ring-1 ring-green-200">
+          ✓ Dados de teste apagados com sucesso!
+        </p>
+      )}
+
+      {resetError === "1" && (
+        <p className="mb-6 rounded-lg bg-red-50 px-4 py-3 text-sm font-medium text-red-700 ring-1 ring-red-200">
+          ✕ Palavra de confirmação incorreta. Nada foi apagado.
         </p>
       )}
 
@@ -142,6 +155,21 @@ export default async function ConfiguracoesPage({
           Salvar configurações
         </button>
       </form>
+
+      <div className="mt-8 max-w-2xl rounded-xl bg-white p-5 shadow-sm ring-1 ring-red-200">
+        <h2 className="mb-2 text-sm font-semibold text-red-700">⚠️ Zona de risco</h2>
+        <p className="mb-1 text-xs text-stone-500">
+          Apaga permanentemente <strong>Pedidos</strong>, <strong>Encomendas</strong> e todo o{" "}
+          <strong>Financeiro</strong> (lançamentos, contas a pagar, contas a receber e fiado). Use
+          isso para limpar pedidos e valores de teste antes de começar a usar de verdade.
+        </p>
+        <p className="mb-4 text-xs text-stone-500">
+          Não é apagado: <strong>Doces</strong>, <strong>Catálogo de encomendas</strong>,{" "}
+          <strong>Estoque</strong>, <strong>Clientes cadastrados</strong> (só o saldo de fiado é
+          zerado) e as <strong>Configurações</strong> da loja.
+        </p>
+        <ResetTestDataForm />
+      </div>
     </div>
   );
 }
