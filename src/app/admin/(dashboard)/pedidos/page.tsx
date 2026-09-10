@@ -3,6 +3,7 @@ import { listOrders } from "@/lib/db/orders";
 import { getStoreSettings } from "@/lib/db/settings";
 import { updateOrderStatusAction, rejectOrderAction, deleteOrderAction } from "@/actions/orders";
 import Collapsible from "@/components/admin/collapsible";
+import DeleteAllOrdersButton from "@/components/admin/delete-all-orders-button";
 import AcceptOrderForm from "@/components/admin/accept-order-form";
 import { waLink, buildOrderConfirmationMessage } from "@/lib/whatsapp";
 import {
@@ -223,6 +224,12 @@ export default async function PedidosPage() {
               resumo={`${columnOrders.length} pedido${columnOrders.length === 1 ? "" : "s"}`}
               defaultAberto={status === "recebido" || status === "preparo" || status === "saiu_entrega"}
             >
+              {columnOrders.length > 0 && (
+                <DeleteAllOrdersButton
+                  status={status}
+                  label={COLUMN_LABELS[status] ?? ORDER_STATUS_LABELS[status]}
+                />
+              )}
               {columnOrders.map((order) => (
                 <OrderCard key={order.id} order={order} storeAddress={settings.address} />
               ))}
@@ -242,6 +249,7 @@ export default async function PedidosPage() {
             <p className="mb-2 text-[11px] text-stone-400">
               Pedidos recusados ou cancelados. Use o 🗑️ para excluir de vez — inclusive pedidos de teste.
             </p>
+            <DeleteAllOrdersButton status="cancelado" label="Cancelados" />
             {canceledOrders.map((order) => (
               <OrderCard key={order.id} order={order} storeAddress={settings.address} />
             ))}

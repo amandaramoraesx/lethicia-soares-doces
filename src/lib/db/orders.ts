@@ -31,6 +31,16 @@ export async function deleteOrder(id: string): Promise<void> {
   await collection().doc(id).delete();
 }
 
+// Apaga de uma vez todos os pedidos de um status (ex.: limpar uma coluna
+// inteira de pedidos de teste). Mesma ressalva do deleteOrder acima.
+export async function deleteOrdersByStatus(status: OrderStatus): Promise<void> {
+  const snap = await collection().where("status", "==", status).get();
+  if (snap.empty) return;
+  const batch = adminDb.batch();
+  for (const doc of snap.docs) batch.delete(doc.ref);
+  await batch.commit();
+}
+
 export interface CreateOrderInput {
   customerName: string;
   customerPhone: string;
