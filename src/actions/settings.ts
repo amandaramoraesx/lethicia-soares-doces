@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { getStoreSettings, updateStoreSettings, setManuallyClosed } from "@/lib/db/settings";
 import { WEEKDAYS, type StoreSettings } from "@/lib/types";
 
@@ -18,7 +19,7 @@ export async function saveSettingsAction(formData: FormData) {
 
   const settings: StoreSettings = {
     name: formData.get("name")?.toString() || "",
-    logoUrl: formData.get("logoUrl")?.toString() || "",
+    logoUrl: current.logoUrl,
     whatsapp: formData.get("whatsapp")?.toString() || "",
     instagram: formData.get("instagram")?.toString() || "",
     address: formData.get("address")?.toString() || "",
@@ -33,6 +34,7 @@ export async function saveSettingsAction(formData: FormData) {
   revalidatePath("/admin/configuracoes");
   revalidatePath("/admin/produtos");
   revalidatePath("/");
+  redirect("/admin/configuracoes?saved=1");
 }
 
 export async function toggleStoreOpenAction(formData: FormData) {

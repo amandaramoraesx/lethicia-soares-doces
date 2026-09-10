@@ -11,11 +11,14 @@ export async function GET() {
   }
 
   const orders = await listOrders();
-  const pending = orders.filter((order) => order.status === "recebido");
+  // Só conta pedidos feitos pelo cliente no cardápio — pedidos manuais que a
+  // própria lojista cadastra não devem disparar o alerta de "novo pedido".
+  const fromCardapio = orders.filter((order) => order.source === "cardapio");
+  const pending = orders.filter((order) => order.status === "aguardando");
 
   return NextResponse.json({
     pendingCount: pending.length,
-    latestId: orders[0]?.id ?? null,
-    latestCreatedAt: orders[0]?.createdAt ?? null,
+    latestId: fromCardapio[0]?.id ?? null,
+    latestCreatedAt: fromCardapio[0]?.createdAt ?? null,
   });
 }
