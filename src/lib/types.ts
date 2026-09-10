@@ -35,13 +35,25 @@ export interface Product {
   name: string;
   description: string;
   price: number;
-  imageUrl: string;
+  imageUrls: string[];
   active: boolean;
   featured: boolean;
   stockControl: boolean;
   stockQty: number;
   recipe: RecipeItem[];
   createdAt: string;
+}
+
+// Doces cadastrados antes do suporte a múltiplas fotos guardaram uma única
+// `imageUrl` no Firestore. Normaliza os dois formatos para `imageUrls: string[]`.
+export function normalizeProduct(id: string, data: Record<string, unknown>): Product {
+  const legacyImageUrl = typeof data.imageUrl === "string" ? data.imageUrl : "";
+  const imageUrls = Array.isArray(data.imageUrls)
+    ? (data.imageUrls as string[])
+    : legacyImageUrl
+      ? [legacyImageUrl]
+      : [];
+  return { id, ...data, imageUrls } as Product;
 }
 
 export interface Ingredient {
@@ -100,12 +112,6 @@ export interface FiadoEntry {
   receivableId: string | null;
 }
 
-export interface FinancialCategory {
-  id: string;
-  name: string;
-  type: FinancialEntryType;
-}
-
 export interface FinancialEntry {
   id: string;
   type: FinancialEntryType;
@@ -116,6 +122,7 @@ export interface FinancialEntry {
   date: string;
   orderId: string | null;
   customerId: string | null;
+  paymentMethod: PaymentMethod | null;
 }
 
 export interface AccountReceivable {

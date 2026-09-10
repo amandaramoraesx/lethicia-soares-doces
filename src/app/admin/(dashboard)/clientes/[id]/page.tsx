@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getCustomer, listOrdersByCustomer, listFiadoEntries } from "@/lib/db/customers";
 import { registerFiadoPaymentAction } from "@/actions/customers";
 import { ORDER_STATUS_LABELS } from "@/lib/types";
+import { waLink, SITE_URL } from "@/lib/whatsapp";
 
 function formatBRL(value: number): string {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -25,16 +26,60 @@ export default async function ClienteDetalhePage({
     listFiadoEntries(id),
   ]);
 
+  const topDoces = (() => {
+    const map = new Map<string, { name: string; quantity: number }>();
+    for (const order of orders) {
+      if (order.status === "cancelado") continue;
+      for (const item of order.items) {
+        const current = map.get(item.productId) ?? { name: item.name, quantity: 0 };
+        current.quantity += item.quantity;
+        map.set(item.productId, current);
+      }
+    }
+    return Array.from(map.values())
+      .sort((a, b) => b.quantity - a.quantity)
+      .slice(0, 3);
+  })();
+
+  const cardapioLink = waLink(
+    customer.phone,
+    `Oi ${customer.name}! Dá uma olhada no nosso cardápio 🍰\n${SITE_URL}`
+  );
+  const conversarLink = waLink(customer.phone, `Oi ${customer.name}! `);
+
   return (
     <div>
       <h1 className="mb-1 text-2xl font-semibold text-stone-800">{customer.name}</h1>
-      <p className="mb-6 text-sm text-stone-500">
+      <p className="mb-4 text-sm text-stone-500">
         {customer.phone} {customer.address && `· ${customer.address}`}
       </p>
 
-      <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="mb-6 flex flex-wrap gap-2">
+        {cardapioLink && (
+          <a
+            href={cardapioLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-lg bg-[#25D366] px-3 py-2 text-xs font-medium text-white hover:opacity-90"
+          >
+            📋 Enviar cardápio no WhatsApp
+          </a>
+        )}
+        {conversarLink && (
+          <a
+            href={conversarLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-lg bg-stone-100 px-3 py-2 text-xs font-medium text-stone-700 hover:bg-stone-200"
+          >
+            💬 Falar / confirmar pedido no WhatsApp
+          </a>
+        )}
+      </div>
+
+      <div className="space-y-4">
         <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
-          <h2 className="mb-3 text-sm font-semibold text-stone-700">Saldo devedor (fiado)</h2>
+          <h2 className="mb-2 text-sm font-semibold text-stone-700">Saldo devedor (fiado)</h2>
           <p className="mb-4 text-3xl font-semibold text-amber-600">{formatBRL(customer.fiadoBalance)}</p>
 
           {customer.fiadoBalance > 0 && (
@@ -87,6 +132,24 @@ export default async function ClienteDetalhePage({
               </ul>
             )}
           </div>
+        </div>
+
+        <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
+          <h2 className="mb-3 text-sm font-semibold text-stone-700">🏆 Doces mais pedidos</h2>
+          {topDoces.length === 0 ? (
+            <p className="text-sm text-stone-400">Sem pedidos suficientes ainda.</p>
+          ) : (
+            <ul className="space-y-2">
+              {topDoces.map((doce, i) => (
+                <li key={doce.name} className="flex items-center justify-between text-sm">
+                  <span className="text-stone-700">
+                    {["🥇", "🥈", "🥉"][i]} {doce.name}
+                  </span>
+                  <span className="font-medium text-stone-500">{doce.quantity}x</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">

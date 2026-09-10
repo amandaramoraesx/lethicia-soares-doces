@@ -94,6 +94,7 @@ async function settleOrderFinancials(order: Order, customerId: string | null): P
       date: new Date().toISOString(),
       orderId: order.id,
       customerId,
+      paymentMethod: order.paymentMethod,
     });
   }
 }

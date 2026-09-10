@@ -2,6 +2,7 @@ import Link from "next/link";
 import { listOrders } from "@/lib/db/orders";
 import { getStoreSettings } from "@/lib/db/settings";
 import { updateOrderStatusAction, acceptOrderAction, rejectOrderAction } from "@/actions/orders";
+import FinanceTabs from "@/components/admin/finance-tabs";
 import {
   ORDER_STATUS_LABELS,
   PAYMENT_METHOD_LABELS,
@@ -91,49 +92,47 @@ function PendingOrderCard({ order, suggestedFee }: { order: Order; suggestedFee:
 
 function OrderCard({ order }: { order: Order }) {
   const next = NEXT_STATUS[order.status];
+  const itemsSummary = order.items.map((item) => `${item.quantity}x ${item.name}`).join(", ");
   return (
-    <div className="mb-3 rounded-xl bg-white p-3 shadow-sm ring-1 ring-stone-200">
-      <div className="mb-1 flex items-center justify-between">
-        <p className="text-sm font-semibold text-stone-800">{order.customerName || "Cliente"}</p>
-        <span className="text-xs text-stone-400">{formatTime(order.createdAt)}</span>
+    <div className="border-b border-stone-100 py-2.5 last:border-0">
+      <div className="flex items-center justify-between gap-2">
+        <p className="min-w-0 truncate text-sm font-medium text-stone-800">
+          {order.customerName || "Cliente"}
+        </p>
+        <span className="shrink-0 text-xs font-semibold text-stone-700">{formatBRL(order.total)}</span>
       </div>
-      <p className="mb-1 text-xs text-stone-500">
-        {order.deliveryType === "entrega" ? "Entrega" : "Retirada"} · {PAYMENT_METHOD_LABELS[order.paymentMethod]}
-        {order.source === "manual" && " · manual"}
-      </p>
-      <ul className="mb-2 space-y-0.5 text-xs text-stone-600">
-        {order.items.map((item, i) => (
-          <li key={i}>
-            {item.quantity}x {item.name}
-          </li>
-        ))}
-      </ul>
-      <p className="mb-2 text-sm font-semibold text-stone-800">{formatBRL(order.total)}</p>
-      {order.notes && <p className="mb-2 text-xs italic text-stone-500">&quot;{order.notes}&quot;</p>}
-
-      <div className="flex gap-2">
-        {next && (
-          <form action={updateOrderStatusAction}>
-            <input type="hidden" name="id" value={order.id} />
-            <input type="hidden" name="status" value={next} />
-            <button
-              type="submit"
-              className="rounded-lg bg-pink-500 px-3 py-1 text-xs font-medium text-white hover:bg-pink-600"
-            >
-              Mover para {ORDER_STATUS_LABELS[next]}
-            </button>
-          </form>
-        )}
-        {order.status !== "cancelado" && order.status !== "entregue" && (
-          <form action={updateOrderStatusAction}>
-            <input type="hidden" name="id" value={order.id} />
-            <input type="hidden" name="status" value="cancelado" />
-            <button type="submit" className="text-xs text-red-500 hover:text-red-700">
-              Cancelar
-            </button>
-          </form>
-        )}
+      <p className="truncate text-xs text-stone-500">{itemsSummary}</p>
+      <div className="mt-0.5 flex items-center justify-between gap-2">
+        <span className="truncate text-[11px] text-stone-400">
+          {formatTime(order.createdAt)} · {order.deliveryType === "entrega" ? "Entrega" : "Retirada"} ·{" "}
+          {PAYMENT_METHOD_LABELS[order.paymentMethod]}
+          {order.source === "manual" && " · manual"}
+        </span>
+        <div className="flex shrink-0 gap-2">
+          {next && (
+            <form action={updateOrderStatusAction}>
+              <input type="hidden" name="id" value={order.id} />
+              <input type="hidden" name="status" value={next} />
+              <button
+                type="submit"
+                className="whitespace-nowrap rounded-lg bg-pink-500 px-2.5 py-1 text-[11px] font-medium text-white hover:bg-pink-600"
+              >
+                → {ORDER_STATUS_LABELS[next]}
+              </button>
+            </form>
+          )}
+          {order.status !== "cancelado" && order.status !== "entregue" && (
+            <form action={updateOrderStatusAction}>
+              <input type="hidden" name="id" value={order.id} />
+              <input type="hidden" name="status" value="cancelado" />
+              <button type="submit" className="text-[11px] text-red-500 hover:text-red-700">
+                Cancelar
+              </button>
+            </form>
+          )}
+        </div>
       </div>
+      {order.notes && <p className="mt-0.5 text-[11px] italic text-stone-400">&quot;{order.notes}&quot;</p>}
     </div>
   );
 }
@@ -167,24 +166,25 @@ export default async function PedidosPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        {COLUMNS.map((status) => {
+      <FinanceTabs
+        tabs={COLUMNS.map((status) => {
           const columnOrders = orders.filter((o) => o.status === status);
-          return (
-            <div key={status} className="rounded-xl bg-stone-50 p-3">
-              <h2 className="mb-3 text-sm font-semibold text-stone-600">
-                {ORDER_STATUS_LABELS[status]} ({columnOrders.length})
-              </h2>
-              {columnOrders.map((order) => (
-                <OrderCard key={order.id} order={order} />
-              ))}
-              {columnOrders.length === 0 && (
-                <p className="text-xs text-stone-400">Nenhum pedido.</p>
-              )}
-            </div>
-          );
+          return {
+            id: status,
+            label: `${ORDER_STATUS_LABELS[status]} (${columnOrders.length})`,
+            content: (
+              <div className="rounded-xl bg-white p-3 shadow-sm ring-1 ring-stone-200">
+                {columnOrders.map((order) => (
+                  <OrderCard key={order.id} order={order} />
+                ))}
+                {columnOrders.length === 0 && (
+                  <p className="py-4 text-center text-xs text-stone-400">Nenhum pedido.</p>
+                )}
+              </div>
+            ),
+          };
         })}
-      </div>
+      />
     </div>
   );
 }

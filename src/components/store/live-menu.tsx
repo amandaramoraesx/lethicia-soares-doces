@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { getClientDb } from "@/lib/firebase-client";
-import type { Product } from "@/lib/types";
+import { normalizeProduct, type Product } from "@/lib/types";
 import ProductCard from "@/components/store/product-card";
 
 export default function LiveMenu({ initialProducts }: { initialProducts: Product[] }) {
@@ -11,7 +11,7 @@ export default function LiveMenu({ initialProducts }: { initialProducts: Product
 
   useEffect(() => {
     const unsub = onSnapshot(collection(getClientDb(), "products"), (snap) => {
-      const all = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Product);
+      const all = snap.docs.map((d) => normalizeProduct(d.id, d.data()));
       setProducts(all.filter((p) => p.active));
     });
     return () => unsub();
@@ -26,7 +26,7 @@ export default function LiveMenu({ initialProducts }: { initialProducts: Product
   }
 
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {products.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}

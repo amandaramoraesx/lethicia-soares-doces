@@ -121,56 +121,36 @@ export default async function ClientesPage({
       </div>
 
       <div className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-stone-200">
-        <table className="w-full text-sm">
-          <thead className="bg-stone-50 text-left text-xs font-semibold uppercase text-stone-500">
-            <tr>
-              <th className="px-4 py-3">Nome</th>
-              <th className="px-4 py-3">Telefone</th>
-              <th className="px-4 py-3">Saldo fiado</th>
-              <th className="px-4 py-3"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {customers.map((customer) => (
-              <tr key={customer.id} className="border-t border-stone-100">
-                <td className="px-4 py-3">
-                  <Link href={`/admin/clientes/${customer.id}`} className="font-medium text-pink-700 hover:underline">
-                    {customer.name}
-                  </Link>
-                </td>
-                <td className="px-4 py-3">{customer.phone}</td>
-                <td className="px-4 py-3">
-                  {customer.fiadoBalance > 0 ? (
-                    <span className="font-medium text-amber-600">{formatBRL(customer.fiadoBalance)}</span>
-                  ) : (
-                    <span className="text-stone-400">—</span>
-                  )}
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <a
-                    href={`/admin/clientes?edit=${customer.id}`}
-                    className="mr-3 text-xs font-medium text-pink-600 hover:text-pink-700"
-                  >
-                    Editar
-                  </a>
-                  <form action={deleteCustomerAction} className="inline">
-                    <input type="hidden" name="id" value={customer.id} />
-                    <button type="submit" className="text-xs font-medium text-red-500 hover:text-red-700">
-                      Excluir
-                    </button>
-                  </form>
-                </td>
-              </tr>
-            ))}
-            {customers.length === 0 && (
-              <tr>
-                <td colSpan={4} className="px-4 py-6 text-center text-stone-400">
-                  Nenhum cliente cadastrado.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+        {customers.map((customer) => (
+          <div
+            key={customer.id}
+            className="flex items-center justify-between gap-2 border-b border-stone-100 px-4 py-3 last:border-0"
+          >
+            <div className="min-w-0">
+              <Link href={`/admin/clientes/${customer.id}`} className="block truncate font-medium text-pink-700 hover:underline">
+                {customer.name}
+              </Link>
+              <p className="truncate text-xs text-stone-400">{customer.phone}</p>
+              {customer.fiadoBalance > 0 && (
+                <p className="text-xs font-medium text-amber-600">Fiado: {formatBRL(customer.fiadoBalance)}</p>
+              )}
+            </div>
+            <div className="flex shrink-0 flex-col items-end gap-1 text-xs">
+              <a href={`/admin/clientes?edit=${customer.id}`} className="font-medium text-pink-600 hover:text-pink-700">
+                Editar
+              </a>
+              <form action={deleteCustomerAction}>
+                <input type="hidden" name="id" value={customer.id} />
+                <button type="submit" className="font-medium text-red-500 hover:text-red-700">
+                  Excluir
+                </button>
+              </form>
+            </div>
+          </div>
+        ))}
+        {customers.length === 0 && (
+          <p className="px-4 py-6 text-center text-sm text-stone-400">Nenhum cliente cadastrado.</p>
+        )}
       </div>
     </div>
   );

@@ -1,31 +1,10 @@
 import "server-only";
 import { adminDb } from "@/lib/firebase-admin";
-import type {
-  AccountPayable,
-  AccountReceivable,
-  FinancialCategory,
-  FinancialEntry,
-} from "@/lib/types";
+import type { AccountPayable, AccountReceivable, FinancialEntry } from "@/lib/types";
 
-const categoriesCollection = () => adminDb.collection("financialCategories");
 const entriesCollection = () => adminDb.collection("financialEntries");
 const receivablesCollection = () => adminDb.collection("accountsReceivable");
 const payablesCollection = () => adminDb.collection("accountsPayable");
-
-export async function listFinancialCategories(): Promise<FinancialCategory[]> {
-  const snap = await categoriesCollection().orderBy("name", "asc").get();
-  return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as FinancialCategory));
-}
-
-export async function createFinancialCategory(data: Omit<FinancialCategory, "id">): Promise<string> {
-  const ref = categoriesCollection().doc();
-  await ref.set(data);
-  return ref.id;
-}
-
-export async function deleteFinancialCategory(id: string): Promise<void> {
-  await categoriesCollection().doc(id).delete();
-}
 
 export async function listFinancialEntries(): Promise<FinancialEntry[]> {
   const snap = await entriesCollection().orderBy("date", "desc").get();
@@ -112,6 +91,7 @@ export async function markPayablePaid(id: string): Promise<AccountPayable | null
     date: paidAt,
     orderId: null,
     customerId: null,
+    paymentMethod: null,
   });
   return payable;
 }

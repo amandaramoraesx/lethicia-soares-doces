@@ -7,10 +7,10 @@ import { usePathname } from "next/navigation";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Dashboard", emoji: "🌸" },
+  { href: "/admin/clientes", label: "Clientes", emoji: "💌" },
   { href: "/admin/pedidos", label: "Pedidos", emoji: "🧾" },
   { href: "/admin/produtos", label: "Doces", emoji: "🍰" },
   { href: "/admin/estoque", label: "Estoque", emoji: "📦" },
-  { href: "/admin/clientes", label: "Clientes", emoji: "💌" },
   { href: "/admin/financeiro", label: "Financeiro", emoji: "💰" },
   { href: "/admin/configuracoes", label: "Configurações", emoji: "⚙️" },
 ];

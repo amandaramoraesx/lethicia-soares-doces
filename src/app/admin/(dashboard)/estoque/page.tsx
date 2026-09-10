@@ -118,52 +118,34 @@ export default async function EstoquePage({
       </div>
 
       <div className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-stone-200">
-        <table className="w-full text-sm">
-          <thead className="bg-stone-50 text-left text-xs font-semibold uppercase text-stone-500">
-            <tr>
-              <th className="px-4 py-3">Insumo</th>
-              <th className="px-4 py-3">Estoque</th>
-              <th className="px-4 py-3">Mínimo</th>
-              <th className="px-4 py-3">Custo/un.</th>
-              <th className="px-4 py-3"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {ingredients.map((ingredient) => (
-              <tr key={ingredient.id} className="border-t border-stone-100">
-                <td className="px-4 py-3 font-medium text-stone-700">{ingredient.name}</td>
-                <td className="px-4 py-3">
-                  {ingredient.stockQty} {UNIT_LABELS[ingredient.unit]}
-                </td>
-                <td className="px-4 py-3">
-                  {ingredient.minStockQty} {UNIT_LABELS[ingredient.unit]}
-                </td>
-                <td className="px-4 py-3">{formatBRL(ingredient.costPerUnit)}</td>
-                <td className="px-4 py-3 text-right">
-                  <a
-                    href={`/admin/estoque?edit=${ingredient.id}`}
-                    className="mr-3 text-xs font-medium text-pink-600 hover:text-pink-700"
-                  >
-                    Editar
-                  </a>
-                  <form action={deleteIngredientAction} className="inline">
-                    <input type="hidden" name="id" value={ingredient.id} />
-                    <button type="submit" className="text-xs font-medium text-red-500 hover:text-red-700">
-                      Excluir
-                    </button>
-                  </form>
-                </td>
-              </tr>
-            ))}
-            {ingredients.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-stone-400">
-                  Nenhum insumo cadastrado.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+        {ingredients.map((ingredient) => (
+          <div
+            key={ingredient.id}
+            className="flex items-center justify-between gap-2 border-b border-stone-100 px-4 py-3 last:border-0"
+          >
+            <div className="min-w-0">
+              <p className="truncate font-medium text-stone-700">{ingredient.name}</p>
+              <p className="text-xs text-stone-400">
+                {ingredient.stockQty} {UNIT_LABELS[ingredient.unit]} · mín. {ingredient.minStockQty}{" "}
+                {UNIT_LABELS[ingredient.unit]} · {formatBRL(ingredient.costPerUnit)}/{UNIT_LABELS[ingredient.unit]}
+              </p>
+            </div>
+            <div className="flex shrink-0 flex-col items-end gap-1 text-xs">
+              <a href={`/admin/estoque?edit=${ingredient.id}`} className="font-medium text-pink-600 hover:text-pink-700">
+                Editar
+              </a>
+              <form action={deleteIngredientAction}>
+                <input type="hidden" name="id" value={ingredient.id} />
+                <button type="submit" className="font-medium text-red-500 hover:text-red-700">
+                  Excluir
+                </button>
+              </form>
+            </div>
+          </div>
+        ))}
+        {ingredients.length === 0 && (
+          <p className="px-4 py-6 text-center text-sm text-stone-400">Nenhum insumo cadastrado.</p>
+        )}
       </div>
     </div>
   );

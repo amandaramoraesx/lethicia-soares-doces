@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { useCart } from "@/lib/cart-context";
 import type { Product } from "@/lib/types";
@@ -10,40 +11,100 @@ function formatBRL(value: number): string {
 
 export default function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart();
+  const [slide, setSlide] = useState(0);
   const outOfStock = product.stockControl && product.stockQty <= 0;
+  const photos = product.imageUrls;
+
+  function prevSlide(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    setSlide((s) => (s - 1 + photos.length) % photos.length);
+  }
+
+  function nextSlide(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    setSlide((s) => (s + 1) % photos.length);
+  }
 
   return (
-    <div className="flex gap-3 rounded-2xl bg-white p-3 shadow-sm ring-1 ring-pink/30">
-      {product.imageUrl ? (
-        <Image
-          src={product.imageUrl}
-          alt={product.name}
-          width={88}
-          height={88}
-          className="h-22 w-22 shrink-0 rounded-xl object-cover"
-          unoptimized
-        />
-      ) : (
-        <div className="flex h-22 w-22 shrink-0 items-center justify-center rounded-xl bg-cream-dark text-2xl">
-          🍰
-        </div>
-      )}
+    <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-pink/30 transition hover:shadow-md">
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-cream-dark">
+        {photos.length > 0 ? (
+          <div
+            className="flex h-full transition-transform duration-300 ease-out"
+            style={{ transform: `translateX(-${slide * 100}%)` }}
+          >
+            {photos.map((url, i) => (
+              <div key={i} className="h-full w-full shrink-0">
+                <Image
+                  src={url}
+                  alt={product.name}
+                  width={400}
+                  height={300}
+                  className="h-full w-full object-cover"
+                  unoptimized
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-4xl">🍰</div>
+        )}
 
-      <div className="flex flex-1 flex-col">
-        <p className="text-sm font-semibold text-stone-700">{product.name}</p>
+        {outOfStock && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+            <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-stone-700">
+              Esgotado
+            </span>
+          </div>
+        )}
+
+        {photos.length > 1 && (
+          <>
+            <button
+              onClick={prevSlide}
+              aria-label="Foto anterior"
+              className="absolute left-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-sm shadow"
+            >
+              ‹
+            </button>
+            <button
+              onClick={nextSlide}
+              aria-label="Próxima foto"
+              className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-sm shadow"
+            >
+              ›
+            </button>
+            <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-1">
+              {photos.map((_, i) => (
+                <span
+                  key={i}
+                  className={`h-1.5 rounded-full bg-white transition-all ${
+                    i === slide ? "w-3.5 opacity-100" : "w-1.5 opacity-50"
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      <div className="p-3.5">
+        <p className="font-script text-lg leading-tight text-pink-deep">{product.name}</p>
         {product.description && (
           <p className="mt-0.5 line-clamp-2 text-xs text-stone-500">{product.description}</p>
         )}
-        <div className="mt-auto flex items-center justify-between pt-2">
-          <span className="text-sm font-semibold text-pink-deep">{formatBRL(product.price)}</span>
+        <div className="mt-2.5 flex items-center justify-between">
+          <span className="text-base font-semibold text-stone-700">{formatBRL(product.price)}</span>
           <button
             onClick={() =>
               addItem({ productId: product.id, name: product.name, price: product.price })
             }
             disabled={outOfStock}
-            className="rounded-full bg-pink px-3 py-1.5 text-xs font-semibold text-pink-deep transition hover:bg-pink-dark disabled:opacity-40"
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-pink-deep text-lg font-semibold text-white transition hover:opacity-90 disabled:opacity-40"
           >
-            {outOfStock ? "Esgotado" : "Adicionar"}
+            +
           </button>
         </div>
       </div>

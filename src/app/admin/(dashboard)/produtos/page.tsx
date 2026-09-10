@@ -1,8 +1,7 @@
 import Image from "next/image";
 import { listProducts } from "@/lib/db/products";
-import { listIngredients } from "@/lib/db/ingredients";
 import { saveProductAction, deleteProductAction } from "@/actions/products";
-import RecipeEditor from "@/components/admin/recipe-editor";
+import ProductPhotosEditor from "@/components/admin/product-photos-editor";
 
 function formatBRL(value: number): string {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -14,10 +13,7 @@ export default async function ProdutosPage({
   searchParams: Promise<{ edit?: string }>;
 }) {
   const { edit } = await searchParams;
-  const [products, ingredients] = await Promise.all([
-    listProducts(),
-    listIngredients(),
-  ]);
+  const products = await listProducts();
   const editing = edit ? products.find((p) => p.id === edit) : null;
 
   return (
@@ -64,64 +60,23 @@ export default async function ProdutosPage({
             />
           </div>
 
-          <div>
-            <label className="mb-1 block text-xs font-medium text-stone-600">Foto</label>
-            <input type="hidden" name="existingImageUrl" value={editing?.imageUrl ?? ""} />
-            <div className="flex items-center gap-3">
-              {editing?.imageUrl && (
-                <Image
-                  src={editing.imageUrl}
-                  alt={editing.name}
-                  width={48}
-                  height={48}
-                  className="h-12 w-12 shrink-0 rounded-lg object-cover"
-                  unoptimized
-                />
-              )}
-              <input
-                type="file"
-                name="imageFile"
-                accept="image/*"
-                className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-pink-50 file:px-3 file:py-1 file:text-xs file:font-medium file:text-pink-600"
-              />
-            </div>
-            {editing?.imageUrl && (
-              <p className="mt-1 text-xs text-stone-400">Escolha uma nova foto só se quiser trocar.</p>
-            )}
-          </div>
-
-          <div className="flex flex-wrap items-center gap-4">
-            <label className="flex items-center gap-2 text-sm text-stone-600">
-              <input type="checkbox" name="active" defaultChecked={editing?.active ?? true} className="h-4 w-4" />
-              Disponível
-            </label>
-            <label className="flex items-center gap-2 text-sm text-stone-600">
-              <input type="checkbox" name="featured" defaultChecked={editing?.featured ?? false} className="h-4 w-4" />
-              Destaque
-            </label>
-            <label className="flex items-center gap-2 text-sm text-stone-600">
-              <input
-                type="checkbox"
-                name="stockControl"
-                defaultChecked={editing?.stockControl ?? false}
-                className="h-4 w-4"
-              />
-              Controlar estoque por unidade
-            </label>
+          <div className="md:col-span-2">
+            <label className="mb-1 block text-xs font-medium text-stone-600">Fotos</label>
+            <ProductPhotosEditor initialUrls={editing?.imageUrls ?? []} />
           </div>
 
           <div>
             <label className="mb-1 block text-xs font-medium text-stone-600">Estoque (unidades)</label>
             <input
               type="number"
+              min="0"
               name="stockQty"
               defaultValue={editing?.stockQty ?? 0}
               className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
             />
-          </div>
-
-          <div className="md:col-span-2">
-            <RecipeEditor ingredients={ingredients} initialRecipe={editing?.recipe ?? []} />
+            <p className="mt-1 text-xs text-stone-400">
+              Zero = aparece &quot;Esgotado&quot; pro cliente. Qualquer valor acima disso, fica disponível.
+            </p>
           </div>
 
           <div className="md:col-span-2 flex items-center gap-3">
@@ -141,73 +96,52 @@ export default async function ProdutosPage({
       </div>
 
       <div className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-stone-200">
-        <table className="w-full text-sm">
-          <thead className="bg-stone-50 text-left text-xs font-semibold uppercase text-stone-500">
-            <tr>
-              <th className="px-4 py-3">Doce</th>
-              <th className="px-4 py-3">Preço</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map((product) => (
-              <tr key={product.id} className="border-t border-stone-100">
-                <td className="flex items-center gap-3 px-4 py-3">
-                  {product.imageUrl ? (
-                    <Image
-                      src={product.imageUrl}
-                      alt={product.name}
-                      width={36}
-                      height={36}
-                      className="h-9 w-9 rounded-lg object-cover"
-                      unoptimized
-                    />
-                  ) : (
-                    <div className="h-9 w-9 rounded-lg bg-pink-50" />
-                  )}
-                  <div>
-                    <p className="font-medium text-stone-700">{product.name}</p>
-                    {product.featured && <span className="text-xs text-pink-500">Destaque</span>}
-                  </div>
-                </td>
-                <td className="px-4 py-3">{formatBRL(product.price)}</td>
-                <td className="px-4 py-3">
-                  <span
-                    className={
-                      product.active
-                        ? "rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700"
-                        : "rounded-full bg-stone-100 px-2 py-0.5 text-xs text-stone-500"
-                    }
-                  >
-                    {product.active ? "Ativo" : "Inativo"}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <a
-                    href={`/admin/produtos?edit=${product.id}`}
-                    className="mr-3 text-xs font-medium text-pink-600 hover:text-pink-700"
-                  >
-                    Editar
-                  </a>
-                  <form action={deleteProductAction} className="inline">
-                    <input type="hidden" name="id" value={product.id} />
-                    <button type="submit" className="text-xs font-medium text-red-500 hover:text-red-700">
-                      Excluir
-                    </button>
-                  </form>
-                </td>
-              </tr>
-            ))}
-            {products.length === 0 && (
-              <tr>
-                <td colSpan={4} className="px-4 py-6 text-center text-stone-400">
-                  Nenhum doce cadastrado.
-                </td>
-              </tr>
+        {products.map((product) => (
+          <div
+            key={product.id}
+            className="flex items-center gap-3 border-b border-stone-100 px-4 py-3 last:border-0"
+          >
+            {product.imageUrls[0] ? (
+              <Image
+                src={product.imageUrls[0]}
+                alt={product.name}
+                width={40}
+                height={40}
+                className="h-10 w-10 shrink-0 rounded-lg object-cover"
+                unoptimized
+              />
+            ) : (
+              <div className="h-10 w-10 shrink-0 rounded-lg bg-pink-50" />
             )}
-          </tbody>
-        </table>
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-medium text-stone-700">{product.name}</p>
+              <p className="text-xs text-stone-400">
+                {formatBRL(product.price)} · estoque {product.stockQty}
+              </p>
+            </div>
+            <span
+              className={`shrink-0 rounded-full px-2 py-0.5 text-xs ${
+                product.active ? "bg-green-100 text-green-700" : "bg-stone-100 text-stone-500"
+              }`}
+            >
+              {product.active ? "Ativo" : "Esgotado"}
+            </span>
+            <div className="flex shrink-0 flex-col items-end gap-1 text-xs">
+              <a href={`/admin/produtos?edit=${product.id}`} className="font-medium text-pink-600 hover:text-pink-700">
+                Editar
+              </a>
+              <form action={deleteProductAction}>
+                <input type="hidden" name="id" value={product.id} />
+                <button type="submit" className="font-medium text-red-500 hover:text-red-700">
+                  Excluir
+                </button>
+              </form>
+            </div>
+          </div>
+        ))}
+        {products.length === 0 && (
+          <p className="px-4 py-6 text-center text-sm text-stone-400">Nenhum doce cadastrado.</p>
+        )}
       </div>
     </div>
   );

@@ -1,12 +1,12 @@
 import "server-only";
 import { adminDb } from "@/lib/firebase-admin";
-import type { Product } from "@/lib/types";
+import { normalizeProduct, type Product } from "@/lib/types";
 
 const collection = () => adminDb.collection("products");
 
 export async function listProducts(): Promise<Product[]> {
   const snap = await collection().orderBy("createdAt", "desc").get();
-  return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Product));
+  return snap.docs.map((doc) => normalizeProduct(doc.id, doc.data()));
 }
 
 export async function listAvailableProducts(): Promise<Product[]> {
@@ -17,7 +17,7 @@ export async function listAvailableProducts(): Promise<Product[]> {
 export async function getProduct(id: string): Promise<Product | null> {
   const doc = await collection().doc(id).get();
   if (!doc.exists) return null;
-  return { id: doc.id, ...doc.data() } as Product;
+  return normalizeProduct(doc.id, doc.data()!);
 }
 
 export async function getProductsByIds(ids: string[]): Promise<Product[]> {
@@ -26,7 +26,7 @@ export async function getProductsByIds(ids: string[]): Promise<Product[]> {
   const docs = await Promise.all(uniqueIds.map((id) => collection().doc(id).get()));
   return docs
     .filter((doc) => doc.exists)
-    .map((doc) => ({ id: doc.id, ...doc.data() } as Product));
+    .map((doc) => normalizeProduct(doc.id, doc.data()!));
 }
 
 export async function createProduct(data: Omit<Product, "id" | "createdAt">): Promise<string> {
@@ -49,6 +49,7 @@ export async function decrementProductStock(id: string, quantity: number): Promi
     const snap = await tx.get(ref);
     if (!snap.exists) return;
     const current = (snap.data() as Product).stockQty ?? 0;
-    tx.update(ref, { stockQty: Math.max(0, current - quantity) });
+    const newQty = Math.max(0, current - quantity);
+    tx.update(ref, { stockQty: newQty, active: newQty > 0 });
   });
 }

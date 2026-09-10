@@ -122,5 +122,6 @@ export async function registerFiadoPayment(
     date: new Date().toISOString(),
     orderId: null,
     customerId,
+    paymentMethod: null,
   });
 }

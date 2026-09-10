@@ -3,62 +3,52 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import {
-  createFinancialCategory,
-  deleteFinancialCategory,
   createFinancialEntry,
   deleteFinancialEntry,
   createPayable,
   markPayablePaid,
   deletePayable,
-  listFinancialCategories,
 } from "@/lib/db/financial";
 
-const categorySchema = z.object({
-  name: z.string().min(1),
-  type: z.enum(["entrada", "saida"]),
-});
-
-export async function createFinancialCategoryAction(formData: FormData) {
-  const parsed = categorySchema.parse({
-    name: formData.get("name"),
-    type: formData.get("type"),
-  });
-  await createFinancialCategory(parsed);
-  revalidatePath("/admin/financeiro");
-}
-
-export async function deleteFinancialCategoryAction(formData: FormData) {
-  const id = formData.get("id")?.toString();
-  if (!id) return;
-  await deleteFinancialCategory(id);
-  revalidatePath("/admin/financeiro");
+function slugify(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
 }
 
 const entrySchema = z.object({
   type: z.enum(["entrada", "saida"]),
-  categoryId: z.string().min(1),
+  category: z.string().min(1),
   description: z.string().default(""),
   amount: z.coerce.number().positive(),
   date: z.string().min(1),
+  paymentMethod: z.enum(["dinheiro", "pix", "cartao", "fiado"]).nullable().default(null),
 });
 
 export async function createFinancialEntryAction(formData: FormData) {
+  const paymentMethodRaw = formData.get("paymentMethod")?.toString();
   const parsed = entrySchema.parse({
     type: formData.get("type"),
-    categoryId: formData.get("categoryId"),
+    category: formData.get("category"),
     description: formData.get("description") || "",
     amount: formData.get("amount"),
     date: formData.get("date"),
+    paymentMethod: paymentMethodRaw || null,
   });
-  const categories = await listFinancialCategories();
-  const category = categories.find((c) => c.id === parsed.categoryId);
 
   await createFinancialEntry({
-    ...parsed,
-    categoryName: category?.name ?? "Outros",
+    type: parsed.type,
+    categoryId: slugify(parsed.category),
+    categoryName: parsed.category,
+    description: parsed.description,
+    amount: parsed.amount,
     date: new Date(parsed.date).toISOString(),
     orderId: null,
     customerId: null,
+    paymentMethod: parsed.type === "entrada" ? parsed.paymentMethod : null,
   });
   revalidatePath("/admin/financeiro");
 }
@@ -72,7 +62,7 @@ export async function deleteFinancialEntryAction(formData: FormData) {
 
 const payableSchema = z.object({
   description: z.string().min(1),
-  categoryId: z.string().min(1),
+  category: z.string().min(1),
   amount: z.coerce.number().positive(),
   dueDate: z.string().min(1),
 });
@@ -80,16 +70,16 @@ const payableSchema = z.object({
 export async function createPayableAction(formData: FormData) {
   const parsed = payableSchema.parse({
     description: formData.get("description"),
-    categoryId: formData.get("categoryId"),
+    category: formData.get("category"),
     amount: formData.get("amount"),
     dueDate: formData.get("dueDate"),
   });
-  const categories = await listFinancialCategories();
-  const category = categories.find((c) => c.id === parsed.categoryId);
 
   await createPayable({
-    ...parsed,
-    categoryName: category?.name ?? "Outros",
+    description: parsed.description,
+    categoryId: slugify(parsed.category),
+    categoryName: parsed.category,
+    amount: parsed.amount,
     dueDate: new Date(parsed.dueDate).toISOString(),
   });
   revalidatePath("/admin/financeiro");
