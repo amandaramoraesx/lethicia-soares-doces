@@ -29,8 +29,34 @@ export default function ProductCard({ product }: { product: Product }) {
 
   return (
     <div className="rounded-2xl bg-white p-3 shadow-sm ring-1 ring-pink/20 transition hover:shadow-md">
-      <div className="relative h-40 w-full overflow-hidden rounded-xl bg-cream-dark sm:h-44">
-        {photos.length > 0 ? (
+      {photos.length === 0 && (
+        <div className="flex h-36 w-full items-center justify-center rounded-xl bg-cream-dark text-3xl">
+          🍰
+        </div>
+      )}
+
+      {photos.length === 1 && (
+        <div className="relative w-full overflow-hidden rounded-xl">
+          <Image
+            src={photos[0]}
+            alt={product.name}
+            width={400}
+            height={400}
+            className="h-auto max-h-64 w-full rounded-xl object-contain"
+            unoptimized
+          />
+          {outOfStock && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+              <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-stone-700">
+                Esgotado
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {photos.length > 1 && (
+        <div className="relative h-36 w-full overflow-hidden rounded-xl bg-white sm:h-40">
           <div
             className="flex h-full transition-transform duration-300 ease-out"
             style={{ transform: `translateX(-${slide * 100}%)` }}
@@ -48,47 +74,41 @@ export default function ProductCard({ product }: { product: Product }) {
               </div>
             ))}
           </div>
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-3xl">🍰</div>
-        )}
 
-        {outOfStock && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-            <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-stone-700">
-              Esgotado
-            </span>
-          </div>
-        )}
-
-        {photos.length > 1 && (
-          <>
-            <button
-              onClick={prevSlide}
-              aria-label="Foto anterior"
-              className="absolute left-1.5 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-xs shadow"
-            >
-              ‹
-            </button>
-            <button
-              onClick={nextSlide}
-              aria-label="Próxima foto"
-              className="absolute right-1.5 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-xs shadow"
-            >
-              ›
-            </button>
-            <div className="absolute bottom-1.5 left-1/2 flex -translate-x-1/2 gap-1">
-              {photos.map((_, i) => (
-                <span
-                  key={i}
-                  className={`h-1 rounded-full bg-white transition-all ${
-                    i === slide ? "w-3 opacity-100" : "w-1 opacity-50"
-                  }`}
-                />
-              ))}
+          {outOfStock && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+              <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-stone-700">
+                Esgotado
+              </span>
             </div>
-          </>
-        )}
-      </div>
+          )}
+
+          <button
+            onClick={prevSlide}
+            aria-label="Foto anterior"
+            className="absolute left-1.5 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-xs shadow"
+          >
+            ‹
+          </button>
+          <button
+            onClick={nextSlide}
+            aria-label="Próxima foto"
+            className="absolute right-1.5 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-xs shadow"
+          >
+            ›
+          </button>
+          <div className="absolute bottom-1.5 left-1/2 flex -translate-x-1/2 gap-1">
+            {photos.map((_, i) => (
+              <span
+                key={i}
+                className={`h-1 rounded-full bg-pink-deep transition-all ${
+                  i === slide ? "w-3 opacity-100" : "w-1 opacity-40"
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="pt-3">
         <p className="font-script text-lg leading-tight text-pink-deep">{product.name}</p>
