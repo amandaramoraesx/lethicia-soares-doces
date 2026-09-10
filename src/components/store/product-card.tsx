@@ -29,7 +29,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
   return (
     <div className="rounded-2xl bg-white p-3 shadow-sm ring-1 ring-pink/20 transition hover:shadow-md">
-      <div className="relative h-32 w-full overflow-hidden rounded-xl bg-cream-dark">
+      <div className="relative h-40 w-full overflow-hidden rounded-xl bg-cream-dark sm:h-44">
         {photos.length > 0 ? (
           <div
             className="flex h-full transition-transform duration-300 ease-out"
@@ -42,7 +42,7 @@ export default function ProductCard({ product }: { product: Product }) {
                   alt={product.name}
                   width={300}
                   height={200}
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-contain"
                   unoptimized
                 />
               </div>

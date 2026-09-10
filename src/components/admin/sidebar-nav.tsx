@@ -74,7 +74,7 @@ export function MobileMenuButton() {
                 <Image src="/logo.png" alt="Lethícia Soares Doces" width={44} height={44} className="h-11 w-11 rounded-full object-cover" />
                 <div>
                   <p className="font-script text-2xl leading-tight text-pink-deep">Lethícia Soares</p>
-                  <p className="text-xs text-stone-400">Painel 🌷</p>
+                  <p className="text-xs text-stone-400">Painel 🍫</p>
                 </div>
               </div>
               <button

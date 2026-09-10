@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
+import Colapsavel from "@/components/admin/collapsible";
 import {
   createFinancialEntryAction,
   deleteFinancialEntryAction,
@@ -89,22 +90,6 @@ export default function FinanceiroClient({
   );
 }
 
-function Colapsavel({ titulo, resumo, children, defaultAberto }: { titulo: string; resumo: string; children: ReactNode; defaultAberto?: boolean }) {
-  const [aberto, setAberto] = useState(!!defaultAberto);
-  return (
-    <div className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-stone-200">
-      <button onClick={() => setAberto((v) => !v)} className="flex w-full items-center justify-between text-left">
-        <div>
-          <p className="text-sm font-medium text-stone-800">{titulo}</p>
-          <p className="text-xs text-stone-400">{resumo}</p>
-        </div>
-        <span className={`text-stone-400 transition-transform ${aberto ? "rotate-180" : ""}`}>▾</span>
-      </button>
-      {aberto && <div className="mt-3 border-t border-stone-100 pt-3">{children}</div>}
-    </div>
-  );
-}
-
 function VisaoHoje({ entries, payables }: { entries: FinancialEntry[]; payables: AccountPayable[] }) {
   const hoje = todayISO();
   const entradasHoje = entries.filter((e) => e.type === "entrada" && e.date.slice(0, 10) === hoje);
@@ -137,15 +122,19 @@ function VisaoHoje({ entries, payables }: { entries: FinancialEntry[]; payables:
 
   return (
     <div className="space-y-3">
-      <Colapsavel titulo="Entradas de hoje" resumo={formatBRL(entradasHoje.reduce((s, e) => s + e.amount, 0))} defaultAberto>
+      <Colapsavel titulo="Entradas de hoje" resumo={formatBRL(entradasHoje.reduce((s, e) => s + e.amount, 0))}>
         <EntryList entries={entradasHoje} vazio="Nenhuma entrada ainda." />
       </Colapsavel>
 
-      <Colapsavel titulo="Despesas de hoje" resumo={formatBRL(despesasHoje.reduce((s, e) => s + e.amount, 0))} defaultAberto>
+      <Colapsavel titulo="Despesas de hoje" resumo={formatBRL(despesasHoje.reduce((s, e) => s + e.amount, 0))}>
         <EntryList entries={despesasHoje} vazio="Nenhuma despesa hoje." />
       </Colapsavel>
 
-      <Colapsavel titulo="Contas a pagar em aberto" resumo={formatBRL(openPayables.reduce((s, p) => s + p.amount, 0))}>
+      <Colapsavel
+        titulo="Contas a pagar em aberto"
+        resumo={formatBRL(openPayables.reduce((s, p) => s + p.amount, 0))}
+        defaultAberto={false}
+      >
         <div className="space-y-2">
           {openPayables.map((p) => (
             <div key={p.id} className="flex items-center justify-between gap-2 text-sm">
@@ -173,6 +162,7 @@ function VisaoHoje({ entries, payables }: { entries: FinancialEntry[]; payables:
       <Colapsavel
         titulo="Entradas anteriores"
         resumo={formatBRL(entradasAnteriores.reduce((s, [, its]) => s + its.reduce((s2, e) => s2 + e.amount, 0), 0))}
+        defaultAberto={false}
       >
         <GroupedByDate groups={entradasAnteriores} vazio="Nenhuma entrada anterior." />
       </Colapsavel>
@@ -180,6 +170,7 @@ function VisaoHoje({ entries, payables }: { entries: FinancialEntry[]; payables:
       <Colapsavel
         titulo="Despesas anteriores"
         resumo={formatBRL(despesasAnteriores.reduce((s, [, its]) => s + its.reduce((s2, e) => s2 + e.amount, 0), 0))}
+        defaultAberto={false}
       >
         <GroupedByDate groups={despesasAnteriores} vazio="Nenhuma despesa anterior." />
       </Colapsavel>
@@ -253,7 +244,7 @@ function VisaoClientesEmAberto({ receivables }: { receivables: AccountReceivable
       </div>
 
       {quitadas.length > 0 && (
-        <Colapsavel titulo="Quitados" resumo={`${quitadas.length}`}>
+        <Colapsavel titulo="Quitados" resumo={`${quitadas.length}`} defaultAberto={false}>
           <div className="space-y-2">
             {quitadas.map((r) => (
               <div key={r.id} className="flex items-center justify-between text-sm">

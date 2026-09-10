@@ -30,9 +30,9 @@ export async function listOpenReceivablesByCustomer(customerId: string): Promise
   const snap = await receivablesCollection()
     .where("customerId", "==", customerId)
     .where("status", "==", "aberta")
-    .orderBy("createdAt", "asc")
     .get();
-  return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as AccountReceivable));
+  const receivables = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as AccountReceivable));
+  return receivables.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 }
 
 export async function createReceivable(data: Omit<AccountReceivable, "id">): Promise<string> {

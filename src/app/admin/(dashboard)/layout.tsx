@@ -22,7 +22,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
             className="mb-2 h-18 w-18 rounded-full object-cover"
           />
           <p className="font-script text-3xl text-pink-deep">Lethícia Soares</p>
-          <p className="text-xs text-stone-400">Painel administrativo 🌷</p>
+          <p className="text-xs text-stone-400">Painel administrativo 🍫</p>
         </div>
         <DesktopSidebarNav />
         <form action={logout}>

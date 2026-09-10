@@ -51,20 +51,17 @@ export async function findOrCreateCustomerByPhone(
 }
 
 export async function listOrdersByCustomer(customerId: string): Promise<Order[]> {
-  const snap = await adminDb
-    .collection("orders")
-    .where("customerId", "==", customerId)
-    .orderBy("createdAt", "desc")
-    .get();
-  return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Order));
+  // Sem orderBy na query (evita depender de índice composto no Firestore) —
+  // ordena em memória, o volume por cliente é pequeno.
+  const snap = await adminDb.collection("orders").where("customerId", "==", customerId).get();
+  const orders = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Order));
+  return orders.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
 export async function listFiadoEntries(customerId: string): Promise<FiadoEntry[]> {
-  const snap = await fiadoCollection()
-    .where("customerId", "==", customerId)
-    .orderBy("date", "desc")
-    .get();
-  return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as FiadoEntry));
+  const snap = await fiadoCollection().where("customerId", "==", customerId).get();
+  const entries = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as FiadoEntry));
+  return entries.sort((a, b) => b.date.localeCompare(a.date));
 }
 
 export async function adjustCustomerFiadoBalance(customerId: string, delta: number): Promise<void> {

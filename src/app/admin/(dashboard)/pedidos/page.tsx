@@ -2,7 +2,7 @@ import Link from "next/link";
 import { listOrders } from "@/lib/db/orders";
 import { getStoreSettings } from "@/lib/db/settings";
 import { updateOrderStatusAction, acceptOrderAction, rejectOrderAction } from "@/actions/orders";
-import FinanceTabs from "@/components/admin/finance-tabs";
+import Collapsible from "@/components/admin/collapsible";
 import {
   ORDER_STATUS_LABELS,
   PAYMENT_METHOD_LABELS,
@@ -166,25 +166,26 @@ export default async function PedidosPage() {
         </div>
       )}
 
-      <FinanceTabs
-        tabs={COLUMNS.map((status) => {
+      <div className="space-y-3">
+        {COLUMNS.map((status) => {
           const columnOrders = orders.filter((o) => o.status === status);
-          return {
-            id: status,
-            label: `${ORDER_STATUS_LABELS[status]} (${columnOrders.length})`,
-            content: (
-              <div className="rounded-xl bg-white p-3 shadow-sm ring-1 ring-stone-200">
-                {columnOrders.map((order) => (
-                  <OrderCard key={order.id} order={order} />
-                ))}
-                {columnOrders.length === 0 && (
-                  <p className="py-4 text-center text-xs text-stone-400">Nenhum pedido.</p>
-                )}
-              </div>
-            ),
-          };
+          return (
+            <Collapsible
+              key={status}
+              titulo={ORDER_STATUS_LABELS[status]}
+              resumo={`${columnOrders.length} pedido${columnOrders.length === 1 ? "" : "s"}`}
+              defaultAberto={status === "recebido" || status === "preparo"}
+            >
+              {columnOrders.map((order) => (
+                <OrderCard key={order.id} order={order} />
+              ))}
+              {columnOrders.length === 0 && (
+                <p className="py-2 text-center text-xs text-stone-400">Nenhum pedido.</p>
+              )}
+            </Collapsible>
+          );
         })}
-      />
+      </div>
     </div>
   );
 }
