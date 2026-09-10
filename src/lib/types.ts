@@ -15,6 +15,7 @@ export interface StoreSettings {
   name: string;
   logoUrl: string;
   whatsapp: string;
+  instagram: string;
   address: string;
   deliveryFee: number;
   minOrder: number;

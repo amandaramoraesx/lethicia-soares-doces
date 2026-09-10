@@ -8,6 +8,7 @@ const DEFAULT_SETTINGS: StoreSettings = {
   name: "Lethícia Soares Doces",
   logoUrl: "/logo.png",
   whatsapp: "",
+  instagram: "",
   address: "",
   deliveryFee: 0,
   minOrder: 0,

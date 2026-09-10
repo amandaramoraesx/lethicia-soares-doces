@@ -20,6 +20,7 @@ export async function saveSettingsAction(formData: FormData) {
     name: formData.get("name")?.toString() || "",
     logoUrl: formData.get("logoUrl")?.toString() || "",
     whatsapp: formData.get("whatsapp")?.toString() || "",
+    instagram: formData.get("instagram")?.toString() || "",
     address: formData.get("address")?.toString() || "",
     deliveryFee: Number(formData.get("deliveryFee") || 0),
     minOrder: Number(formData.get("minOrder") || 0),

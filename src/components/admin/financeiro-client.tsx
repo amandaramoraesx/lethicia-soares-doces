@@ -74,7 +74,7 @@ export default function FinanceiroClient({
               aba === t ? "border-pink-deep text-pink-deep" : "border-transparent text-stone-500 hover:text-pink-deep"
             }`}
           >
-            {t === "hoje" ? "Hoje" : t === "clientes" ? "Clientes em aberto" : "Resumo geral"}
+            {t === "hoje" ? "Por dia" : t === "clientes" ? "Clientes em aberto" : "Resumo geral"}
           </button>
         ))}
       </div>
@@ -92,42 +92,58 @@ export default function FinanceiroClient({
 
 function VisaoHoje({ entries, payables }: { entries: FinancialEntry[]; payables: AccountPayable[] }) {
   const hoje = todayISO();
-  const entradasHoje = entries.filter((e) => e.type === "entrada" && e.date.slice(0, 10) === hoje);
-  const despesasHoje = entries.filter((e) => e.type === "saida" && e.date.slice(0, 10) === hoje);
+  const [selectedDate, setSelectedDate] = useState(hoje);
+
+  function mudarDia(delta: number) {
+    const d = new Date(`${selectedDate}T00:00:00`);
+    d.setDate(d.getDate() + delta);
+    setSelectedDate(
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+    );
+  }
+
+  const entradasDia = entries.filter((e) => e.type === "entrada" && e.date.slice(0, 10) === selectedDate);
+  const despesasDia = entries.filter((e) => e.type === "saida" && e.date.slice(0, 10) === selectedDate);
   const openPayables = payables.filter((p) => p.status === "aberta");
-
-  const entradasAnteriores = useMemo(() => {
-    const map = new Map<string, FinancialEntry[]>();
-    for (const e of entries) {
-      if (e.type !== "entrada") continue;
-      const d = e.date.slice(0, 10);
-      if (d >= hoje) continue;
-      if (!map.has(d)) map.set(d, []);
-      map.get(d)!.push(e);
-    }
-    return Array.from(map.entries()).sort((a, b) => b[0].localeCompare(a[0])).slice(0, 14);
-  }, [entries, hoje]);
-
-  const despesasAnteriores = useMemo(() => {
-    const map = new Map<string, FinancialEntry[]>();
-    for (const e of entries) {
-      if (e.type !== "saida") continue;
-      const d = e.date.slice(0, 10);
-      if (d >= hoje) continue;
-      if (!map.has(d)) map.set(d, []);
-      map.get(d)!.push(e);
-    }
-    return Array.from(map.entries()).sort((a, b) => b[0].localeCompare(a[0])).slice(0, 14);
-  }, [entries, hoje]);
+  const diaLabel = selectedDate === hoje ? "hoje" : formatDate(selectedDate);
 
   return (
     <div className="space-y-3">
-      <Colapsavel titulo="Entradas de hoje" resumo={formatBRL(entradasHoje.reduce((s, e) => s + e.amount, 0))}>
-        <EntryList entries={entradasHoje} vazio="Nenhuma entrada ainda." />
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => mudarDia(-1)}
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-500 hover:bg-stone-50"
+        >
+          ‹
+        </button>
+        <input
+          type="date"
+          value={selectedDate}
+          onChange={(e) => setSelectedDate(e.target.value)}
+          className="flex-1 rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-700"
+        />
+        <button
+          onClick={() => mudarDia(1)}
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-500 hover:bg-stone-50"
+        >
+          ›
+        </button>
+        {selectedDate !== hoje && (
+          <button
+            onClick={() => setSelectedDate(hoje)}
+            className="whitespace-nowrap rounded-xl border border-stone-200 bg-white px-3 py-2 text-xs font-medium text-pink-deep hover:bg-pink-50"
+          >
+            Hoje
+          </button>
+        )}
+      </div>
+
+      <Colapsavel titulo={`Entradas de ${diaLabel}`} resumo={formatBRL(entradasDia.reduce((s, e) => s + e.amount, 0))}>
+        <EntryList entries={entradasDia} vazio="Nenhuma entrada nesse dia." />
       </Colapsavel>
 
-      <Colapsavel titulo="Despesas de hoje" resumo={formatBRL(despesasHoje.reduce((s, e) => s + e.amount, 0))}>
-        <EntryList entries={despesasHoje} vazio="Nenhuma despesa hoje." />
+      <Colapsavel titulo={`Despesas de ${diaLabel}`} resumo={formatBRL(despesasDia.reduce((s, e) => s + e.amount, 0))}>
+        <EntryList entries={despesasDia} vazio="Nenhuma despesa nesse dia." />
       </Colapsavel>
 
       <Colapsavel
@@ -158,22 +174,6 @@ function VisaoHoje({ entries, payables }: { entries: FinancialEntry[]; payables:
           {openPayables.length === 0 && <p className="text-sm text-stone-400">Nenhuma conta em aberto.</p>}
         </div>
       </Colapsavel>
-
-      <Colapsavel
-        titulo="Entradas anteriores"
-        resumo={formatBRL(entradasAnteriores.reduce((s, [, its]) => s + its.reduce((s2, e) => s2 + e.amount, 0), 0))}
-        defaultAberto={false}
-      >
-        <GroupedByDate groups={entradasAnteriores} vazio="Nenhuma entrada anterior." />
-      </Colapsavel>
-
-      <Colapsavel
-        titulo="Despesas anteriores"
-        resumo={formatBRL(despesasAnteriores.reduce((s, [, its]) => s + its.reduce((s2, e) => s2 + e.amount, 0), 0))}
-        defaultAberto={false}
-      >
-        <GroupedByDate groups={despesasAnteriores} vazio="Nenhuma despesa anterior." />
-      </Colapsavel>
     </div>
   );
 }
@@ -200,23 +200,6 @@ function EntryList({ entries, vazio }: { entries: FinancialEntry[]; vazio: strin
         </div>
       ))}
       {entries.length === 0 && <p className="text-sm text-stone-400">{vazio}</p>}
-    </div>
-  );
-}
-
-function GroupedByDate({ groups, vazio }: { groups: [string, FinancialEntry[]][]; vazio: string }) {
-  return (
-    <div className="space-y-4">
-      {groups.map(([date, its]) => (
-        <div key={date}>
-          <div className="mb-1 flex items-center justify-between text-xs font-medium text-stone-500">
-            <span>{formatDate(date)}</span>
-            <span>{formatBRL(its.reduce((s, e) => s + e.amount, 0))}</span>
-          </div>
-          <EntryList entries={its} vazio="" />
-        </div>
-      ))}
-      {groups.length === 0 && <p className="text-sm text-stone-400">{vazio}</p>}
     </div>
   );
 }
