@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createProduct, updateProduct, deleteProduct, setProductActive } from "@/lib/db/products";
 import { uploadProductImage } from "@/lib/upload-image";
@@ -56,6 +57,7 @@ export async function saveProductAction(formData: FormData) {
   revalidatePath("/admin/produtos");
   revalidatePath("/admin/estoque");
   revalidatePath("/");
+  redirect("/admin/produtos?saved=1");
 }
 
 export async function toggleProductActiveAction(formData: FormData) {

@@ -113,9 +113,9 @@ function OrderRow({ order, customerPhone }: { order: CustomOrder; customerPhone:
 export default async function EncomendasPage({
   searchParams,
 }: {
-  searchParams: Promise<{ edit?: string }>;
+  searchParams: Promise<{ edit?: string; saved?: string }>;
 }) {
-  const { edit } = await searchParams;
+  const { edit, saved } = await searchParams;
   const [orders, customers] = await Promise.all([listCustomOrders(), listCustomers()]);
   const editing = edit ? orders.find((o) => o.id === edit) : null;
   const phoneByCustomerId = new Map(customers.map((c) => [c.id, c.phone]));
@@ -126,6 +126,12 @@ export default async function EncomendasPage({
   return (
     <div>
       <h1 className="mb-6 text-2xl font-semibold text-stone-800">Encomendas 🎂</h1>
+
+      {saved === "1" && (
+        <p className="mb-6 rounded-lg bg-green-50 px-4 py-3 text-sm font-medium text-green-700 ring-1 ring-green-200">
+          ✓ Alterações salvas com sucesso!
+        </p>
+      )}
 
       <FormToggle editing={!!editing} label="Nova encomenda" key={editing?.id ?? "new"}>
         <div className="mb-8 rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">

@@ -8,9 +8,9 @@ import { ORDER_CATALOG_CATEGORY_LABELS } from "@/lib/types";
 export default async function CatalogoEncomendasPage({
   searchParams,
 }: {
-  searchParams: Promise<{ edit?: string }>;
+  searchParams: Promise<{ edit?: string; saved?: string }>;
 }) {
-  const { edit } = await searchParams;
+  const { edit, saved } = await searchParams;
   const items = await listOrderCatalogItems();
   const editing = edit ? items.find((i) => i.id === edit) : null;
 
@@ -24,6 +24,12 @@ export default async function CatalogoEncomendasPage({
           pedido é combinado por WhatsApp.
         </p>
       </div>
+
+      {saved === "1" && (
+        <p className="mb-6 rounded-lg bg-green-50 px-4 py-3 text-sm font-medium text-green-700 ring-1 ring-green-200">
+          ✓ Alterações salvas com sucesso!
+        </p>
+      )}
 
       <FormToggle editing={!!editing} label="Novo item" key={editing?.id ?? "new"}>
         <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createIngredient, updateIngredient, deleteIngredient } from "@/lib/db/ingredients";
 
@@ -29,6 +30,7 @@ export async function saveIngredientAction(formData: FormData) {
   }
   revalidatePath("/admin/estoque");
   revalidatePath("/admin/produtos");
+  redirect("/admin/estoque?saved=1");
 }
 
 export async function deleteIngredientAction(formData: FormData) {

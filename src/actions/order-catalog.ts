@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 import {
   createOrderCatalogItem,
@@ -50,6 +51,7 @@ export async function saveOrderCatalogItemAction(formData: FormData) {
   }
   revalidatePath("/admin/catalogo-encomendas");
   revalidatePath("/");
+  redirect("/admin/catalogo-encomendas?saved=1");
 }
 
 export async function deleteOrderCatalogItemAction(formData: FormData) {

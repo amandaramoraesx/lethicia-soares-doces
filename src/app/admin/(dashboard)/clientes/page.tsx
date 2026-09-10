@@ -10,9 +10,9 @@ function formatBRL(value: number): string {
 export default async function ClientesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ edit?: string }>;
+  searchParams: Promise<{ edit?: string; saved?: string }>;
 }) {
-  const { edit } = await searchParams;
+  const { edit, saved } = await searchParams;
   const customers = await listCustomers();
   const editing = edit ? customers.find((c) => c.id === edit) : null;
   const emAberto = customers.filter((c) => c.fiadoBalance > 0);
@@ -20,6 +20,12 @@ export default async function ClientesPage({
   return (
     <div>
       <h1 className="mb-6 text-2xl font-semibold text-stone-800">Clientes 💌</h1>
+
+      {saved === "1" && (
+        <p className="mb-6 rounded-lg bg-green-50 px-4 py-3 text-sm font-medium text-green-700 ring-1 ring-green-200">
+          ✓ Alterações salvas com sucesso!
+        </p>
+      )}
 
       {emAberto.length > 0 && (
         <div className="mb-8 rounded-xl bg-amber-50 p-5 ring-1 ring-amber-200">

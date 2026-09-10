@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createCustomOrder, updateCustomOrder, deleteCustomOrder } from "@/lib/db/custom-orders";
 import { getCustomer } from "@/lib/db/customers";
@@ -44,6 +45,7 @@ export async function saveCustomOrderAction(formData: FormData) {
   }
   revalidatePath("/admin/encomendas");
   revalidatePath("/admin/clientes");
+  redirect("/admin/encomendas?saved=1");
 }
 
 export async function markCustomOrderStatusAction(formData: FormData) {

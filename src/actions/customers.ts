@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 import {
   createCustomer,
@@ -70,6 +71,7 @@ export async function saveCustomerAction(formData: FormData) {
     });
   }
   revalidatePath("/admin/clientes");
+  redirect("/admin/clientes?saved=1");
 }
 
 export async function deleteCustomerAction(formData: FormData) {

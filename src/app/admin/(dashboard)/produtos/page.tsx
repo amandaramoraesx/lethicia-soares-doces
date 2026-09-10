@@ -13,9 +13,9 @@ function formatBRL(value: number): string {
 export default async function ProdutosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ edit?: string }>;
+  searchParams: Promise<{ edit?: string; saved?: string }>;
 }) {
-  const { edit } = await searchParams;
+  const { edit, saved } = await searchParams;
   const [products, settings] = await Promise.all([listProducts(), getStoreSettings()]);
   const editing = edit ? products.find((p) => p.id === edit) : null;
 
@@ -25,6 +25,12 @@ export default async function ProdutosPage({
         <h1 className="text-2xl font-semibold text-stone-800">Doces</h1>
         <StoreOpenToggle manuallyClosed={settings.manuallyClosed} />
       </div>
+
+      {saved === "1" && (
+        <p className="mb-6 rounded-lg bg-green-50 px-4 py-3 text-sm font-medium text-green-700 ring-1 ring-green-200">
+          ✓ Alterações salvas com sucesso!
+        </p>
+      )}
 
       <FormToggle editing={!!editing} label="Novo doce" key={editing?.id ?? "new"}>
         <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
