@@ -24,6 +24,51 @@ function countdownLabel(isoDate: string): { text: string; className: string } {
   return { text: `Faltam ${diffDays}d`, className: "bg-stone-100 text-stone-500" };
 }
 
+function OrderTitle({ order }: { order: CustomOrder }) {
+  const quantityLabel = `${order.quantity}${order.unit}`;
+
+  if (order.itemType === "bolo") {
+    return (
+      <div>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-base font-medium text-stone-800">🎂 Bolo</span>
+          {order.tamanho && (
+            <span className="rounded-full bg-pink-50 px-2 py-0.5 text-xs font-semibold text-pink-700">
+              Tamanho {order.tamanho}
+            </span>
+          )}
+          <span className="text-sm text-stone-500">
+            · massa {order.massa || "—"} · {quantityLabel}
+          </span>
+        </div>
+        {order.sabores && order.sabores.length > 0 && (
+          <p className="mt-0.5 text-sm text-stone-600">{order.sabores.join(" + ")}</p>
+        )}
+      </div>
+    );
+  }
+
+  if (order.itemType === "docinho") {
+    return (
+      <div>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-base font-medium text-stone-800">🍬 Docinhos</span>
+          <span className="text-sm text-stone-500">· {quantityLabel}</span>
+        </div>
+        {order.sabores && order.sabores.length > 0 && (
+          <p className="mt-0.5 text-sm text-stone-600">{order.sabores.join(", ")}</p>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <p className="text-base font-medium break-words text-stone-800">
+      {order.doceName} — {quantityLabel}
+    </p>
+  );
+}
+
 function OrderRow({ order, customerPhone }: { order: CustomOrder; customerPhone: string | null }) {
   const countdown = countdownLabel(order.deliveryDate);
   const whatsappLink = customerPhone
@@ -36,11 +81,8 @@ function OrderRow({ order, customerPhone }: { order: CustomOrder; customerPhone:
   return (
     <div className="flex flex-col gap-3 border-b border-stone-100 px-4 py-4 last:border-0 sm:flex-row sm:items-center">
       <div className="min-w-0 flex-1">
-        <p className="text-base font-medium break-words text-stone-800">
-          {order.doceName} — {order.quantity}
-          {order.unit}
-        </p>
-        <p className="text-sm text-stone-500">
+        <OrderTitle order={order} />
+        <p className="mt-1 text-sm text-stone-500">
           {order.customerId ? (
             <Link href={`/admin/clientes/${order.customerId}`} className="text-pink-600 hover:underline">
               {order.customerName}

@@ -171,6 +171,7 @@ export interface AccountReceivable {
 
 export type CustomOrderUnit = "un" | "kg";
 export type CustomOrderStatus = "pendente" | "entregue" | "cancelada";
+export type CustomOrderItemType = "bolo" | "docinho" | "outro";
 
 export interface CustomOrder {
   id: string;
@@ -183,6 +184,13 @@ export interface CustomOrder {
   notes: string;
   status: CustomOrderStatus;
   createdAt: string;
+  // Campos estruturados opcionais (pedidos criados a partir do seletor de
+  // Bolo/Docinhos) — usados para exibir o card de forma organizada em vez de
+  // depender de decompor `doceName`. Ausentes em pedidos antigos ou "Outro".
+  itemType?: CustomOrderItemType;
+  sabores?: string[];
+  massa?: string;
+  tamanho?: string;
 }
 
 export interface AccountPayable {

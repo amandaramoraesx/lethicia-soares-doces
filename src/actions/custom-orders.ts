@@ -58,6 +58,19 @@ export async function saveCustomOrderAction(formData: FormData) {
         ? composeDocinhoName(docinhoSabores)
         : parsed.doceName;
 
+  // Campos estruturados só existem para bolo/docinho — omitidos (não `undefined`)
+  // para "outro", já que o Firestore rejeita valores `undefined` explícitos.
+  const structuredFields =
+    parsed.itemType === "bolo"
+      ? {
+          sabores: [parsed.recheioBolo1, parsed.recheioBolo2].filter(Boolean),
+          massa: parsed.massaBolo,
+          tamanho: parsed.tamanhoBolo,
+        }
+      : parsed.itemType === "docinho"
+        ? { sabores: docinhoSabores }
+        : {};
+
   const customer = parsed.customerId ? await getCustomer(parsed.customerId) : null;
 
   const data = {
@@ -68,6 +81,8 @@ export async function saveCustomOrderAction(formData: FormData) {
     unit: parsed.unit,
     deliveryDate: parsed.deliveryDate,
     notes: parsed.notes,
+    itemType: parsed.itemType,
+    ...structuredFields,
   };
 
   if (id) {
