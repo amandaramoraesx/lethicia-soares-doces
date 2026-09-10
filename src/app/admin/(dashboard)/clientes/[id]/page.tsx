@@ -4,6 +4,7 @@ import { listCustomOrdersByCustomer } from "@/lib/db/custom-orders";
 import { registerFiadoPaymentAction } from "@/actions/customers";
 import { ORDER_STATUS_LABELS } from "@/lib/types";
 import { waLink, SITE_URL } from "@/lib/whatsapp";
+import Collapsible from "@/components/admin/collapsible";
 
 function formatBRL(value: number): string {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -101,8 +102,11 @@ export default async function ClienteDetalhePage({
           )}
         </div>
 
-        <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
-          <h2 className="mb-3 text-sm font-semibold text-stone-700">💰 Financeiro</h2>
+        <Collapsible
+          titulo="💰 Financeiro"
+          resumo={`${validOrders.length} pedido${validOrders.length === 1 ? "" : "s"} · ${formatBRL(totalGasto)}`}
+          defaultAberto={false}
+        >
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             <div>
               <p className="text-xs text-stone-400">Total gasto</p>
@@ -117,12 +121,13 @@ export default async function ClienteDetalhePage({
               <p className="text-lg font-semibold text-stone-800">{formatBRL(ticketMedio)}</p>
             </div>
           </div>
-        </div>
+        </Collapsible>
 
-        <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
-          <h2 className="mb-2 text-sm font-semibold text-stone-700">Valores em aberto</h2>
-          <p className="mb-4 text-3xl font-semibold text-amber-600">{formatBRL(customer.fiadoBalance)}</p>
-
+        <Collapsible
+          titulo="Valores em aberto"
+          resumo={formatBRL(customer.fiadoBalance)}
+          defaultAberto={customer.fiadoBalance > 0}
+        >
           {customer.fiadoBalance > 0 && (
             <form action={registerFiadoPaymentAction} className="flex flex-wrap items-end gap-3">
               <input type="hidden" name="customerId" value={customer.id} />
@@ -173,11 +178,14 @@ export default async function ClienteDetalhePage({
               </ul>
             )}
           </div>
-        </div>
+        </Collapsible>
 
         {customOrders.length > 0 && (
-          <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
-            <h2 className="mb-3 text-sm font-semibold text-stone-700">🎂 Encomendas</h2>
+          <Collapsible
+            titulo="🎂 Encomendas"
+            resumo={`${customOrders.length} encomenda${customOrders.length === 1 ? "" : "s"}`}
+            defaultAberto={false}
+          >
             <ul className="space-y-2">
               {customOrders.map((order) => (
                 <li key={order.id} className="border-b border-stone-100 pb-2 text-sm last:border-0">
@@ -196,11 +204,14 @@ export default async function ClienteDetalhePage({
                 </li>
               ))}
             </ul>
-          </div>
+          </Collapsible>
         )}
 
-        <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
-          <h2 className="mb-3 text-sm font-semibold text-stone-700">🏆 Doces mais pedidos</h2>
+        <Collapsible
+          titulo="🏆 Doces mais pedidos"
+          resumo={topDoces.length > 0 ? `🥇 ${topDoces[0].name}` : "Sem dados"}
+          defaultAberto={false}
+        >
           {topDoces.length === 0 ? (
             <p className="text-sm text-stone-400">Sem pedidos suficientes ainda.</p>
           ) : (
@@ -215,10 +226,13 @@ export default async function ClienteDetalhePage({
               ))}
             </ul>
           )}
-        </div>
+        </Collapsible>
 
-        <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
-          <h2 className="mb-3 text-sm font-semibold text-stone-700">Histórico de pedidos</h2>
+        <Collapsible
+          titulo="Histórico de pedidos"
+          resumo={`${orders.length} pedido${orders.length === 1 ? "" : "s"}`}
+          defaultAberto={false}
+        >
           {orders.length === 0 ? (
             <p className="text-sm text-stone-400">Nenhum pedido registrado.</p>
           ) : (
@@ -234,7 +248,7 @@ export default async function ClienteDetalhePage({
               ))}
             </ul>
           )}
-        </div>
+        </Collapsible>
       </div>
     </div>
   );
