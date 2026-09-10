@@ -10,6 +10,7 @@ import {
   registerFiadoPayment,
   getCustomer,
 } from "@/lib/db/customers";
+import { composeAddress } from "@/lib/address";
 
 const customerSchema = z.object({
   name: z.string().min(1, "Informe o nome do cliente."),
@@ -20,21 +21,6 @@ const customerSchema = z.object({
   zipCode: z.string().default(""),
   internalNote: z.string().default(""),
 });
-
-function composeAddress(fields: {
-  street: string;
-  number: string;
-  neighborhood: string;
-  zipCode: string;
-}): string {
-  const streetLine = [fields.street, fields.number && `nº ${fields.number}`]
-    .filter(Boolean)
-    .join(", ");
-  const parts = [streetLine, fields.neighborhood, fields.zipCode && `CEP ${fields.zipCode}`].filter(
-    Boolean
-  );
-  return parts.join(" - ");
-}
 
 export async function saveCustomerAction(formData: FormData) {
   const id = formData.get("id")?.toString();

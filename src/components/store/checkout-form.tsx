@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
 import { saveLastOrderId } from "@/lib/order-tracking";
 import { createCheckoutOrderAction } from "@/actions/checkout";
+import { composeAddress } from "@/lib/address";
 import { CHECKOUT_PAYMENT_METHODS_BY_DELIVERY, PAYMENT_METHOD_LABELS, type PaymentMethod } from "@/lib/types";
 
 function formatBRL(value: number): string {
@@ -43,13 +44,19 @@ export default function CheckoutForm({ minOrder }: { minOrder: number }) {
 
     const formData = new FormData(event.currentTarget);
     const customerName = formData.get("customerName")?.toString() ?? "";
+    const address = composeAddress({
+      street: formData.get("street")?.toString() ?? "",
+      number: formData.get("number")?.toString() ?? "",
+      neighborhood: formData.get("neighborhood")?.toString() ?? "",
+      zipCode: formData.get("zipCode")?.toString() ?? "",
+    });
 
     setLoading(true);
     const result = await createCheckoutOrderAction({
       customerName,
       customerPhone: formData.get("customerPhone")?.toString() ?? "",
       deliveryType,
-      address: formData.get("address")?.toString() ?? "",
+      address,
       paymentMethod: formData.get("paymentMethod") as PaymentMethod,
       notes: formData.get("notes")?.toString() ?? "",
       items,
@@ -147,9 +154,27 @@ export default function CheckoutForm({ minOrder }: { minOrder: number }) {
         </div>
 
         {deliveryType === "entrega" && (
-          <div>
-            <label className="mb-1 block text-xs font-medium text-stone-600">Endereço completo</label>
-            <input name="address" required className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm" />
+          <div className="space-y-3 rounded-lg bg-white/60 p-3 ring-1 ring-pink/20">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div className="sm:col-span-2">
+                <label className="mb-1 block text-xs font-medium text-stone-600">Rua</label>
+                <input name="street" required className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-stone-600">Número</label>
+                <input name="number" required className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm" />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-xs font-medium text-stone-600">Bairro</label>
+                <input name="neighborhood" required className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-stone-600">CEP (opcional)</label>
+                <input name="zipCode" className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm" />
+              </div>
+            </div>
           </div>
         )}
 
