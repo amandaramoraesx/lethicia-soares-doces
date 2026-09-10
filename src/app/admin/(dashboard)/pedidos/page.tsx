@@ -4,6 +4,7 @@ import { getStoreSettings } from "@/lib/db/settings";
 import { updateOrderStatusAction, rejectOrderAction } from "@/actions/orders";
 import Collapsible from "@/components/admin/collapsible";
 import AcceptOrderForm from "@/components/admin/accept-order-form";
+import { waLink } from "@/lib/whatsapp";
 import {
   ORDER_STATUS_LABELS,
   PAYMENT_METHOD_LABELS,
@@ -87,6 +88,9 @@ function PendingOrderCard({
 function OrderCard({ order }: { order: Order }) {
   const next = NEXT_STATUS[order.status];
   const itemsSummary = order.items.map((item) => `${item.quantity}x ${item.name}`).join(", ");
+  const whatsappLink = order.customerPhone
+    ? waLink(order.customerPhone, `Oi ${order.customerName || ""}! `)
+    : null;
   return (
     <div className="border-b border-stone-100 py-2.5 last:border-0">
       <div className="flex items-center justify-between gap-2">
@@ -102,7 +106,18 @@ function OrderCard({ order }: { order: Order }) {
           {PAYMENT_METHOD_LABELS[order.paymentMethod]}
           {order.source === "manual" && " · manual"}
         </span>
-        <div className="flex shrink-0 gap-2">
+        <div className="flex shrink-0 items-center gap-2">
+          {whatsappLink && (
+            <a
+              href={whatsappLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Falar no WhatsApp"
+              className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#25D366] text-xs text-white hover:opacity-90"
+            >
+              💬
+            </a>
+          )}
           {next && (
             <form action={updateOrderStatusAction}>
               <input type="hidden" name="id" value={order.id} />
