@@ -2,22 +2,13 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { useCart } from "@/lib/cart-context";
 import { waLink } from "@/lib/whatsapp";
-import type { Product } from "@/lib/types";
+import type { OrderCatalogItem } from "@/lib/types";
 
-function formatBRL(value: number): string {
-  return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
-
-export default function ProductCard({ product, whatsapp }: { product: Product; whatsapp: string }) {
-  const { addItem } = useCart();
+export default function OrderCatalogCard({ item, whatsapp }: { item: OrderCatalogItem; whatsapp: string }) {
   const [slide, setSlide] = useState(0);
-  const outOfStock = product.stockControl && product.stockQty <= 0;
-  const photos = product.imageUrls;
-  const orderLink = outOfStock
-    ? waLink(whatsapp, `Oi! O doce "${product.name}" está esgotado, mas gostaria de encomendar 🍰`)
-    : null;
+  const photos = item.imageUrls;
+  const orderLink = waLink(whatsapp, `Oi! Vi o "${item.name}" no cardápio e gostaria de fazer uma encomenda 🎂`);
 
   function prevSlide(e: React.MouseEvent) {
     e.preventDefault();
@@ -35,7 +26,7 @@ export default function ProductCard({ product, whatsapp }: { product: Product; w
     <div className="rounded-2xl bg-white p-3 shadow-sm ring-1 ring-pink/20 transition hover:shadow-md">
       {photos.length === 0 && (
         <div className="flex h-36 w-full items-center justify-center rounded-xl bg-cream-dark text-3xl">
-          🍰
+          🎂
         </div>
       )}
 
@@ -43,19 +34,12 @@ export default function ProductCard({ product, whatsapp }: { product: Product; w
         <div className="relative w-full overflow-hidden rounded-xl">
           <Image
             src={photos[0]}
-            alt={product.name}
+            alt={item.name}
             width={400}
             height={400}
             className="h-auto max-h-64 w-full rounded-xl object-contain"
             unoptimized
           />
-          {outOfStock && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-              <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-stone-700">
-                Esgotado
-              </span>
-            </div>
-          )}
         </div>
       )}
 
@@ -69,7 +53,7 @@ export default function ProductCard({ product, whatsapp }: { product: Product; w
               <div key={i} className="h-full w-full shrink-0">
                 <Image
                   src={url}
-                  alt={product.name}
+                  alt={item.name}
                   width={300}
                   height={200}
                   className="h-full w-full object-contain"
@@ -78,14 +62,6 @@ export default function ProductCard({ product, whatsapp }: { product: Product; w
               </div>
             ))}
           </div>
-
-          {outOfStock && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-              <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-stone-700">
-                Esgotado
-              </span>
-            </div>
-          )}
 
           <button
             onClick={prevSlide}
@@ -115,33 +91,18 @@ export default function ProductCard({ product, whatsapp }: { product: Product; w
       )}
 
       <div className="pt-3">
-        <p className="font-script text-lg leading-tight text-pink-deep">{product.name}</p>
-        {product.description && (
-          <p className="mt-0.5 line-clamp-2 text-xs text-stone-500">{product.description}</p>
+        <p className="font-script text-lg leading-tight text-pink-deep">{item.name}</p>
+        {item.description && <p className="mt-0.5 text-xs text-stone-500">{item.description}</p>}
+        {orderLink && (
+          <a
+            href={orderLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 flex w-full items-center justify-center rounded-lg bg-pink-deep px-3 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+          >
+            Fazer encomenda
+          </a>
         )}
-        <div className="mt-2 flex items-center justify-between gap-2">
-          <span className="text-base font-semibold text-stone-700">{formatBRL(product.price)}</span>
-          {orderLink ? (
-            <a
-              href={orderLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="whitespace-nowrap rounded-lg bg-pink-deep px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90"
-            >
-              Encomendar
-            </a>
-          ) : (
-            <button
-              onClick={() =>
-                addItem({ productId: product.id, name: product.name, price: product.price })
-              }
-              disabled={outOfStock}
-              className="flex h-8 w-8 items-center justify-center rounded-lg bg-pink-deep text-base font-semibold text-white transition hover:opacity-90 disabled:opacity-40"
-            >
-              +
-            </button>
-          )}
-        </div>
       </div>
     </div>
   );

@@ -1,8 +1,9 @@
 import { listAvailableProducts } from "@/lib/db/products";
+import { listActiveOrderCatalogItems } from "@/lib/db/order-catalog";
 import { getStoreSettings, isStoreOpenNow } from "@/lib/db/settings";
 import { WEEKDAYS } from "@/lib/types";
 import { waLink } from "@/lib/whatsapp";
-import LiveMenu from "@/components/store/live-menu";
+import MenuTabs from "@/components/store/menu-tabs";
 
 function WhatsAppIcon() {
   return (
@@ -21,8 +22,9 @@ function InstagramIcon() {
 }
 
 export default async function CardapioPage() {
-  const [products, settings] = await Promise.all([
+  const [products, catalogItems, settings] = await Promise.all([
     listAvailableProducts(),
+    listActiveOrderCatalogItems(),
     getStoreSettings(),
   ]);
 
@@ -92,7 +94,7 @@ export default async function CardapioPage() {
         )}
       </section>
 
-      <LiveMenu initialProducts={products} />
+      <MenuTabs products={products} catalogItems={catalogItems} whatsapp={settings.whatsapp} />
     </main>
   );
 }

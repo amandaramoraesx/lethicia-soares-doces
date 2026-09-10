@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { href: "/admin/pedidos", label: "Pedidos", emoji: "🧾" },
   { href: "/admin/produtos", label: "Doces", emoji: "🍰" },
   { href: "/admin/encomendas", label: "Encomendas", emoji: "🎂" },
+  { href: "/admin/catalogo-encomendas", label: "Catálogo encomendas", emoji: "📖" },
   { href: "/admin/estoque", label: "Estoque", emoji: "📦" },
   { href: "/admin/financeiro", label: "Financeiro", emoji: "💰" },
   { href: "/admin/configuracoes", label: "Configurações", emoji: "⚙️" },

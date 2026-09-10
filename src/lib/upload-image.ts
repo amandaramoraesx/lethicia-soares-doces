@@ -2,10 +2,10 @@ import "server-only";
 import { randomUUID } from "crypto";
 import { adminBucket } from "@/lib/firebase-admin";
 
-export async function uploadProductImage(file: File): Promise<string> {
+async function uploadImage(file: File, folder: string): Promise<string> {
   const buffer = Buffer.from(await file.arrayBuffer());
   const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-  const path = `products/${randomUUID()}.${ext}`;
+  const path = `${folder}/${randomUUID()}.${ext}`;
 
   const gcsFile = adminBucket.file(path);
   await gcsFile.save(buffer, {
@@ -14,4 +14,12 @@ export async function uploadProductImage(file: File): Promise<string> {
   await gcsFile.makePublic();
 
   return `https://storage.googleapis.com/${adminBucket.name}/${path}`;
+}
+
+export function uploadProductImage(file: File): Promise<string> {
+  return uploadImage(file, "products");
+}
+
+export function uploadOrderCatalogImage(file: File): Promise<string> {
+  return uploadImage(file, "order-catalog");
 }

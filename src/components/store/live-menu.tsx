@@ -6,7 +6,13 @@ import { getClientDb } from "@/lib/firebase-client";
 import { normalizeProduct, type Product } from "@/lib/types";
 import ProductCard from "@/components/store/product-card";
 
-export default function LiveMenu({ initialProducts }: { initialProducts: Product[] }) {
+export default function LiveMenu({
+  initialProducts,
+  whatsapp,
+}: {
+  initialProducts: Product[];
+  whatsapp: string;
+}) {
   const [products, setProducts] = useState<Product[]>(initialProducts);
 
   useEffect(() => {
@@ -28,7 +34,7 @@ export default function LiveMenu({ initialProducts }: { initialProducts: Product
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCard key={product.id} product={product} whatsapp={whatsapp} />
       ))}
     </div>
   );

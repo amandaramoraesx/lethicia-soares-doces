@@ -58,6 +58,28 @@ export function normalizeProduct(id: string, data: Record<string, unknown>): Pro
   return { id, ...data, imageUrls } as Product;
 }
 
+export type OrderCatalogCategory = "bolo" | "docinho";
+
+export interface OrderCatalogItem {
+  id: string;
+  name: string;
+  description: string;
+  category: OrderCatalogCategory;
+  imageUrls: string[];
+  active: boolean;
+  createdAt: string;
+}
+
+export function normalizeOrderCatalogItem(id: string, data: Record<string, unknown>): OrderCatalogItem {
+  const imageUrls = Array.isArray(data.imageUrls) ? (data.imageUrls as string[]) : [];
+  return { id, ...data, imageUrls } as OrderCatalogItem;
+}
+
+export const ORDER_CATALOG_CATEGORY_LABELS: Record<OrderCatalogCategory, string> = {
+  bolo: "Bolos",
+  docinho: "Docinhos",
+};
+
 export interface Ingredient {
   id: string;
   name: string;
