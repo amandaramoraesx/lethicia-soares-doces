@@ -16,7 +16,7 @@ export default function ProductCard({ product, whatsapp }: { product: Product; w
   const outOfStock = product.stockControl && product.stockQty <= 0;
   const photos = product.imageUrls;
   const orderLink = outOfStock
-    ? waLink(whatsapp, `Oi! O doce "${product.name}" está esgotado, mas gostaria de encomendar 🍰`)
+    ? waLink(whatsapp, `Oi! O doce "${product.name}" está indisponível hoje, mas gostaria de encomendar 🍰`)
     : null;
 
   function prevSlide(e: React.MouseEvent) {
@@ -51,8 +51,8 @@ export default function ProductCard({ product, whatsapp }: { product: Product; w
           />
           {outOfStock && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-              <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-stone-700">
-                Esgotado
+              <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-stone-700">
+                Indisponível hoje
               </span>
             </div>
           )}
@@ -81,8 +81,8 @@ export default function ProductCard({ product, whatsapp }: { product: Product; w
 
           {outOfStock && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-              <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-stone-700">
-                Esgotado
+              <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-stone-700">
+                Indisponível hoje
               </span>
             </div>
           )}
