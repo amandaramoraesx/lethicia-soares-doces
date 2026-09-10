@@ -92,7 +92,9 @@ export default function OrderCatalogCard({ item, whatsapp }: { item: OrderCatalo
 
       <div className="pt-3">
         <p className="font-script text-lg leading-tight text-pink-deep">{item.name}</p>
-        {item.description && <p className="mt-0.5 text-xs text-stone-500">{item.description}</p>}
+        {item.description && (
+          <p className="mt-0.5 whitespace-pre-wrap text-xs text-stone-500">{item.description}</p>
+        )}
         {orderLink && (
           <a
             href={orderLink}
